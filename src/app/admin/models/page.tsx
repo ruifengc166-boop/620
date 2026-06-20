@@ -53,6 +53,7 @@ export default function AdminModels() {
                 <label className="block text-xs font-medium text-[#475569] mb-1">Agent 写作风格 (systemPrompt)</label>
                 <textarea className="form-input text-xs min-h-[60px] resize-y" defaultValue={m.system_prompt || ""} id={"prompt_"+m.provider} placeholder="输入系统提示词，定义AI的写作风格和角色定位" />
                 <button onClick={() => { const el = document.getElementById("prompt_"+m.provider) as HTMLTextAreaElement; if (el) updateModel(m.provider, { system_prompt: el.value }); }} className="btn-primary text-xs py-1.5 px-3 mt-1">保存 Prompt</button>
+                  
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1">

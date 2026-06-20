@@ -296,15 +296,21 @@ export const commonFormFields: Record<string, { name: string; label: string; typ
   public_release: { name: "public_release", label: "是否用于公开发布", type: "select", placeholder: "" },
   org_name: { name: "org_name", label: "单位名称", type: "text", placeholder: "如：XX街道/XX社区/XX局" },
   org_region_type: { name: "org_region_type", label: "单位类型", type: "select", placeholder: "请选择单位类型", options: [
-    { label: "街道", value: "street" }, { label: "社区", value: "community" },
-    { label: "部委局", value: "government" }, { label: "事业单位", value: "institution" },
-    { label: "国企", value: "soe" }, { label: "其他", value: "other" }
+    { label: "街道党工委", value: "street_party" }, { label: "街道办事处", value: "street_office" },
+    { label: "街道科室", value: "street_dept" }, { label: "社区党委", value: "community_party" },
+    { label: "社区居委会", value: "community_council" }, { label: "社区工作站", value: "community_station" },
+    { label: "部委局机关", value: "gov_office" }, { label: "部委局下属单位", value: "gov_sub" },
+    { label: "事业单位本级", value: "institution_main" }, { label: "事业单位下属", value: "institution_sub" },
+    { label: "国企集团", value: "soe_group" }, { label: "国企下属子公司", value: "soe_sub" },
+    { label: "民营企业", value: "private" }, { label: "外资企业", value: "foreign" },
+    { label: "合资企业", value: "joint_venture" }, { label: "中小企业", value: "sme" },
+    { label: "个体工商户", value: "individual" }, { label: "党建/党群部门", value: "party_dept" },
+    { label: "宣传部门", value: "propaganda_dept" }, { label: "社会组织/协会", value: "ngo" },
+    { label: "园区/开发区管委会", value: "park" }, { label: "其他", value: "other" }
   ] },
-  org_characteristics: { name: "org_characteristics", label: "单位特色用语", type: "textarea", placeholder: "本单位常用的表述方式、特色用语等（选填，如XX街道习惯称居民为'街坊'）" },
+  org_characteristics: { name: "org_characteristics", label: "单位特色用语", type: "textarea", placeholder: "本单位常用的表述方式、特色用语等（选填，如XX街道习惯称居民为街坊）" },
 };
 export const cardStyleOptions: { label: string; value: CardStyle; description: string }[] = [
-  { label: "正式稳妥版", value: "official", description: "表达规范，适合正式场合" },
-  { label: "简洁实用版", value: "concise", description: "重点突出，高效实用" },
   { label: "宣传传播版", value: "promotion", description: "有传播感，适合公开发布" },
   { label: "亮点提炼版", value: "highlight", description: "聚焦特色亮点和成果" },
   { label: "创意策划版", value: "creative", description: "角度新颖，有创意性" },

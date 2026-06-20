@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/users", label: "👥 用户管理" },
     { href: "/admin/templates", label: "📐 模板管理" },
     { href: "/admin/models", label: "🤖 模型配置" },
-    { href: "/admin/plans", label: "💎 套餐管理" },
+    { href: "/admin/plans", label: "💎 套餐管理" },
   ];
 
   return (

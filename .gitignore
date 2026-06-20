@@ -50,3 +50,9 @@ next-env.d.ts
 .server_output.txt
 build_output.txt
 
+
+# build logs
+build_check.txt
+build_*.txt
+.server_error.txt
+.server_output.txt

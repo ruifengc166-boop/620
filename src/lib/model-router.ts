@@ -25,17 +25,44 @@ const modeProviderMap: Record<GenerationMode, string> = {
 };
 
 function buildPrompt(mode: GenerationMode, taskType: string, input: Record<string, any>): string {
-  const fields = Object.entries(input).filter(([, v]) => v).map(([k, v]) => `${k}：${v}`).join("\n");
-  let base = `请根据以下信息生成${taskType}。\n\n任务：${taskType}\n\n用户输入信息：\n${fields}\n\n`;
+  // Filter out localized fields from general section (added below with Chinese labels)
+  const localKeys = ["org_name", "org_region_type", "org_characteristics"];
+  const generalFields = Object.entries(input).filter(([k, v]) => v && !localKeys.includes(k)).map(([k, v]) => `${k}：${v}`).join("\n");
+
+  let base = `请根据以下信息生成${taskType}。\n\n任务：${taskType}\n\n用户输入信息：\n${generalFields}\n\n`;
+
+  // Add localized organizational info with Chinese labels
   if (input.org_name || input.org_region_type || input.org_characteristics) {
     base += `【单位/地域信息】\n`;
     if (input.org_name) base += `单位名称：${input.org_name}\n`;
     if (input.org_region_type) base += `单位类型：${input.org_region_type}\n`;
-    if (input.org_characteristics) base += `单位特色用语：${input.org_characteristics}\n\n`;
+    if (input.org_characteristics) base += `单位特色用语：${input.org_characteristics}\n`;
   }
+  
+  // Intelligent writing guidance based on ALL filled fields
+  const guidance: string[] = [];
+  if (input.host_unit) guidance.push(`材料需体现主办单位\"${input.host_unit}\"的角色和定位`);
+  if (input.organizer_unit) guidance.push(`承办单位\"${input.organizer_unit}\"的职责需在材料中体现`);
+  if (input.leadership_guests) guidance.push(`出席活动的领导嘉宾\"${input.leadership_guests}\"应在材料中适当提及`);
+  if (input.activity_time) guidance.push(`活动时间\"${input.activity_time}\"需在材料中准确标注`);
+  if (input.activity_location) guidance.push(`活动地点\"${input.activity_location}\"需在材料中明确提及`);
+  if (input.activity_background && input.activity_purpose) guidance.push(`材料应重点阐述活动的背景和目的，突出举办活动的必要性和意义`);
+  else if (input.activity_background) guidance.push(`材料应充分体现活动背景信息`);
+  else if (input.activity_purpose) guidance.push(`材料需清晰说明活动目的和预期效果`);
+  if (input.activity_process) guidance.push(`根据用户提供的活动流程\"${input.activity_process}\"进行详细展开`);
+  if (input.participants) guidance.push(`面向参与对象\"${input.participants}\"，语言风格和内容深度应贴合该群体`);
+  if (input.key_content) guidance.push(`重点内容\"${input.key_content}\"需在材料中突出呈现`);
+  if (input.expected_tone) guidance.push(`请以\"${input.expected_tone}\"的语气撰写`);
+  if (input.formal_submission === "yes") guidance.push(`该材料用于正式报送，格式和用语需规范严谨`);
+  if (input.public_release === "yes") guidance.push(`该材料用于公开发布，需注意政治正确性和信息准确性`);
+  if (guidance.length === 0) guidance.push(`根据用户提供的活动信息，完整呈现材料内容`);
+  
+  base += `\n【写作要求】\n${guidance.map(g => `- ${g}`).join("\n")}\n`;
+  
   const constraints = `\n【约束条件】\n1. 不得编造政策依据和领导姓名职务\n2. 不确定信息必须标注【待核实】\n3. 不得使用夸大、绝对化表述\n4. 生成内容仅为初稿，需人工审核\n5. 涉及数据、金额、人数时使用用户提供信息，不自行添加\n`;
 
-  switch (mode) {
+
+switch (mode) {
     case "official":
       return `请以正式公文风格撰写一份完整的${taskType}。要求：结构规范、用词严谨、表述稳妥，适合正式报送和归档使用。` + base + constraints;
     case "planning":

@@ -50,19 +50,27 @@ export default function TaskFormInner() {
   const setField = (n: string, v: string) => setFormData((p: Record<string, string>) => ({ ...p, [n]: v }));
   const toggleStyle = (s: string) => setSelectedStyles((p: string[]) => p.includes(s) ? p.filter((x: string) => x !== s) : [...p, s]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (usage && (usage?.remaining ?? 0) <= 0) { setShowQuotaModal(true); return; }
+    try {
+      const session = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("banhui_session") || "null") : null;
+      const res = await fetch("/api/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: selectedMode, task_type: task.name, cards: selectedStyles, input: formData, user_id: session?.userId || null }),
+      });
+      const data = await res.json();
+      if (data.ok && data.results) { setResults(data.results); setStep("result"); return; }
+    } catch (e) { /* fallback to demo below */ }
     const gen: GenerationResult[] = [
       { id: "v1", title: task.name + "（正式稳妥版）", style: "official", styleLabel: "正式稳妥版", content: demoAntiFraud[0].content.replace("XX社区反诈宣传活动方案", (formData.activity_name || "") + task.name), summary: "完整结构，表达规范，适合正式场合", riskLevel: "low" },
-      { id: "v2", title: task.name + "（简洁实用版）", style: "concise", styleLabel: "简洁实用版", content: "## " + task.name + "（简洁版）\n\n一、时间：" + (formData.activity_time || "待定") + "\n二、地点：" + (formData.activity_location || "待定") + "\n三、参与对象：" + (formData.participants || "待定") + "\n\n【待补充】详细信息请根据实际活动情况填写。", summary: "重点突出，快速上手", riskLevel: "low" },
-      { id: "v3", title: task.name + "（宣传传播版）", style: "promotion", styleLabel: "宣传传播版", content: "## " + task.name + "\n\n" + (formData.activity_background || "为贯彻落实相关工作部署") + "，" + (formData.activity_purpose || "特制定本方案。") + "\n\n### 主要亮点\n1. 突出实践特色\n2. 注重实际效果\n3. 服务基层群众\n\n【待核实】具体数据和信息请以实际情况为准。", summary: "有传播感，适合公开发布", riskLevel: "medium" },
-      { id: "v4", title: task.name + "（亮点提炼版）", style: "highlight", styleLabel: "亮点提炼版", content: "## " + task.name + "——亮点提炼\n\n### 核心亮点\n\n**亮点一：** " + (formData.key_content || "突出活动主题和特色") + "\n\n**亮点二：** 注重创新工作方法\n\n**亮点三：** 强化基层参与和群众获得感\n\n### 宣传推广建议\n- 建议在活动前后做好宣传预热\n- 注意收集活动照片和视频素材\n- 及时总结提炼经验做法", summary: "聚焦特色亮点和成果", riskLevel: "low" },
-      { id: "v5", title: task.name + "（创意策划版）", style: "creative", styleLabel: "创意策划版", content: "## " + task.name + "——创意策划\n\n### 创意亮点\n\n**创意一：** 沉浸式互动体验设计\n\n**创意二：** 多媒体融合传播方案\n\n**创意三：** 参与式活动机制创新\n\n### 创新建议\n- 建议融入数字化互动元素\n- 可考虑引入群众自创节目\n- 注重活动前后的数字化传播\n\n【待核实】创意的可行性和预算需结合实际评估", summary: "角度新颖，创意性强，适合追求创新效果", riskLevel: "medium" },
+      { id: "v2", title: task.name + "（简洁实用版）", style: "concise", styleLabel: "简洁实用版", content: "## " + task.name + "（简洁版）\n\n一、时间：" + (formData.activity_time || "待定") + "\n二、地点：" + (formData.activity_location || "待定") + "\n三、参与对象：" + (formData.participants || "待定") + "\n\n【待补充】", summary: "重点突出", riskLevel: "low" },
+      { id: "v3", title: task.name + "（宣传传播版）", style: "promotion", styleLabel: "宣传传播版", content: "## " + task.name + "\n\n" + (formData.activity_background || "为贯彻工作部署") + "，" + (formData.activity_purpose || "特制定方案。") + "\n\n", summary: "有传播感", riskLevel: "medium" },
+      { id: "v4", title: task.name + "（亮点提炼版）", style: "highlight", styleLabel: "亮点提炼版", content: "## " + task.name + "\n\n" + (formData.key_content || "突出主题"), summary: "聚焦亮点", riskLevel: "low" },
+      { id: "v5", title: task.name + "（创意策划版）", style: "creative", styleLabel: "创意策划版", content: "## " + task.name + "\n\n" + (formData.activity_name || "创新方式"), summary: "角度新颖", riskLevel: "medium" },
     ];
     setResults(gen);
     setStep("result");
   };
-
   const handleSave = (id: string) => { 
     const r = results.find(x => x.id === id);
     if (r) {
@@ -98,7 +106,7 @@ export default function TaskFormInner() {
                 <div key={f.name} className={f.type === "textarea" ? "sm:col-span-2" : ""}>
                   <label className="block text-xs font-medium text-[#475569] mb-1.5">{f.label}</label>
                   {f.type === "textarea" ? <textarea className="form-input min-h-[70px] resize-y" placeholder={f.placeholder} value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)} />
-                    : f.name === "activity_type" ? <select className="form-select" value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)}><option value="">请选择</option>{activityTypeOptions.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
+                    : f.type === "select" ? <select className="form-select" value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)}><option value="">请选择</option>{(f.options || activityTypeOptions).map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
                       : <input className="form-input" placeholder={f.placeholder} value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)} />
                   }
                 </div>

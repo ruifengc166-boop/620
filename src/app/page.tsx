@@ -39,6 +39,23 @@ export default function HomePage() {
             
           </div>
 
+          {/* Platform features */}
+          <div className="bg-gradient-to-br from-[#1a56db] to-[#1e40af] rounded-2xl p-8 md:p-12 mb-8 shadow-lg">
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-8">为什么选择办会助理</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { title: "快速出稿", desc: "3分钟完成一篇材料初稿，告别加班赶材料" },
+                { title: "多版本比选", desc: "一次输入生成多个版本，选最合适的用" },
+                { title: "安全风控", desc: "内置风险检查，涉密/夸大/隐私内容自动识别" },
+                { title: "材料包一键出", desc: "选活动模板，整套材料包一次生成" },
+              ].map(f => (
+                <div key={f.title} className="bg-white rounded-xl p-8 text-center shadow-md hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-xl mb-3 text-[#1e293b]">{f.title}</h3>
+                  <p className="text-sm text-[#475569] leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
           {/* Slogan */}
           <div className="mt-8 text-center">
             <p className="inline-block bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 text-sm text-[#bfdbfe]">
