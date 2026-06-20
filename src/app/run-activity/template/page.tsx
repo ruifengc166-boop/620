@@ -121,7 +121,65 @@ function TemplateDetail() {
           <div className="mt-6 text-center space-y-2">
             <div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-xs text-[#166534]"><strong>导出提示：</strong>导出内容仍需人工审核。</div>
             <button className="btn-secondary text-sm" onClick={()=>exportMaterialPackage(form.name+tmpl.name+"材料包", selected.map(m=>({name:m,content:"【"+m+"】\\n\\n基于"+tmpl.name+"生成\\n\\n"+(form.background||"")+"\\n\\n【待补充】"})))}>📤 导出整套文档</button>
-          <Link href="/run-activity" className="btn-secondary text-sm">返回模板列表</Link>
+
+          {/* Meeting Execution Tools */}
+          <div className="mt-8 pt-6 border-t border-[#e2e8f0]">
+            <h2 className="font-semibold text-sm mb-4">📋 会务执行工具</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Checklist */}
+              <details className="card p-3">
+                <summary className="font-medium text-xs cursor-pointer text-[#1a56db]">☑️ 会务检查清单</summary>
+                <div className="mt-3 space-y-1 text-[0.6rem] text-[#475569]">
+                  {["确认场地及布置","调试音响投影设备","准备签到表/签到码","打印会议资料/座签","确认嘉宾出席名单","安排引导人员","准备茶水/矿泉水","检查应急药品箱","确认摄影摄像到位","测试网络/直播设备"].map((item,i) => (
+                    <label key={i} className="flex items-center gap-2 p-1 hover:bg-[#f1f5f9] rounded">
+                      <input type="checkbox" className="accent-[#1a56db]" /> {item}
+                    </label>
+                  ))}
+                </div>
+              </details>
+              {/* Task Assignment */}
+              <details className="card p-3">
+                <summary className="font-medium text-xs cursor-pointer text-[#059669]">👥 任务分工表</summary>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-[0.55rem] border-collapse">
+                    <thead><tr className="bg-[#f1f5f9]"><th className="border p-1 text-left">工作组</th><th className="border p-1 text-left">任务内容</th><th className="border p-1 text-left">负责人</th><th className="border p-1 text-left">完成时间</th></tr></thead>
+                    <tbody>
+                      {[["综合协调组","整体统筹、嘉宾联络","___","活动前3天"],["材料组","方案、主持词、讲话稿","___","活动前2天"],["会务组","场地、签到、物料","___","活动前1天"],["宣传组","新闻稿、摄影、推送","___","活动当天"],["后勤组","交通、餐饮、应急","___","活动前1天"],["安保组","秩序维护、应急预案","___","活动前1天"]].map((row,i) => (
+                        <tr key={i} className={i%2===0?"bg-white":"bg-[#f8fafc]"}><td className="border p-1">{row[0]}</td><td className="border p-1">{row[1]}</td><td className="border p-1 text-[#1a56db]">{row[2]}</td><td className="border p-1">{row[3]}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+              {/* Material List */}
+              <details className="card p-3">
+                <summary className="font-medium text-xs cursor-pointer text-[#d97706]">📦 物料清单</summary>
+                <div className="mt-3 space-y-1 text-[0.6rem] text-[#475569]">
+                  {[{n:"会议资料打印",qty:"___份"},{n:"签到表/签到二维码",qty:"___张"},{n:"座签/台卡",qty:"___个"},{n:"笔/笔记本",qty:"___套"},{n:"矿泉水",qty:"___瓶"},{n:"宣传物料/展架",qty:"___套"},{n:"桌牌/指引牌",qty:"___个"},{n:"摄影设备",qty:"___套"},{n:"应急药品",qty:"1箱"},{n:"伴手礼/资料袋",qty:"___份"}].map((item,i) => (
+                    <div key={i} className="flex items-center justify-between py-0.5 border-b border-[#f1f5f9] last:border-0">
+                      <span>{item.n}</span>
+                      <input className="w-16 text-right text-[0.55rem] border-b border-[#d1d5db] outline-none bg-transparent" placeholder={item.qty} />
+                    </div>
+                  ))}
+                </div>
+              </details>
+              {/* Timeline */}
+              <details className="card p-3">
+                <summary className="font-medium text-xs cursor-pointer text-[#7c3aed]">⏱️ 流程时间表</summary>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-[0.55rem] border-collapse">
+                    <thead><tr className="bg-[#f1f5f9]"><th className="border p-1 text-left">时间</th><th className="border p-1 text-left">环节</th><th className="border p-1 text-left">内容</th><th className="border p-1 text-left">负责人</th><th className="border p-1 text-left">备注</th></tr></thead>
+                    <tbody>
+                      {[["8:00-8:30","签到入场","嘉宾签到、领取资料","会务组",""],["8:30-8:35","开场","主持人介绍活动背景","主持人",""],["8:35-8:50","致辞","领导致辞","___","发言稿已准备"],["8:50-9:30","主题环节","政策宣讲/签约/颁奖","___",""],["9:30-10:00","交流互动","现场问答/座谈交流","___",""],["10:00-10:10","总结","领导总结讲话","___",""],["10:10-10:30","合影/离场","合影留念、有序退场","宣传组",""]].map((row,i) => (
+                        <tr key={i} className={i%2===0?"bg-white":"bg-[#f8fafc]"}><td className="border p-1">{row[0]}</td><td className="border p-1">{row[1]}</td><td className="border p-1">{row[2]}</td><td className="border p-1 text-[#1a56db]">{row[3]}</td><td className="border p-1 text-[#94a3b8]">{row[4]}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </div>
+            <p className="text-[0.55rem] text-[#94a3b8] mt-3">点击展开各工具，填写实际信息后可直接复制到 Word/Excel 使用</p>
+          </div>          <Link href="/run-activity" className="btn-secondary text-sm">返回模板列表</Link>
 
           </div>
         </div>

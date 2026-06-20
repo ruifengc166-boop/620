@@ -39,7 +39,12 @@ export default function TaskFormInner() {
   }, [user?.email]);
   if (!task) return <div className="container-app py-12 text-center text-[#64748b]">未找到该任务<Link href="/quick-write" className="text-[#1a56db] ml-2">返回</Link></div>;
 
-  const commonFields = task.commonFields.map((k: string) => commonFormFields[k]).filter(Boolean);
+  const commonFields = [
+  ...task.commonFields.map((k: string) => commonFormFields[k]).filter(Boolean),
+  commonFormFields.org_name,
+  commonFormFields.org_region_type,
+  commonFormFields.org_characteristics,
+].filter(Boolean);
   const allFields = task.specificFields || [];
 
   const setField = (n: string, v: string) => setFormData((p: Record<string, string>) => ({ ...p, [n]: v }));

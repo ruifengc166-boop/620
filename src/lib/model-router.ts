@@ -26,7 +26,13 @@ const modeProviderMap: Record<GenerationMode, string> = {
 
 function buildPrompt(mode: GenerationMode, taskType: string, input: Record<string, any>): string {
   const fields = Object.entries(input).filter(([, v]) => v).map(([k, v]) => `${k}：${v}`).join("\n");
-  const base = `请根据以下信息生成${taskType}。\n\n任务：${taskType}\n\n用户输入信息：\n${fields}\n\n`;
+  let base = `请根据以下信息生成${taskType}。\n\n任务：${taskType}\n\n用户输入信息：\n${fields}\n\n`;
+  if (input.org_name || input.org_region_type || input.org_characteristics) {
+    base += `【单位/地域信息】\n`;
+    if (input.org_name) base += `单位名称：${input.org_name}\n`;
+    if (input.org_region_type) base += `单位类型：${input.org_region_type}\n`;
+    if (input.org_characteristics) base += `单位特色用语：${input.org_characteristics}\n\n`;
+  }
   const constraints = `\n【约束条件】\n1. 不得编造政策依据和领导姓名职务\n2. 不确定信息必须标注【待核实】\n3. 不得使用夸大、绝对化表述\n4. 生成内容仅为初稿，需人工审核\n5. 涉及数据、金额、人数时使用用户提供信息，不自行添加\n`;
 
   switch (mode) {

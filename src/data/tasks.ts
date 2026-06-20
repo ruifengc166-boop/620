@@ -294,6 +294,13 @@ export const commonFormFields: Record<string, { name: string; label: string; typ
   expected_tone: { name: "expected_tone", label: "期望语气风格", type: "select", placeholder: "请选择语气风格" },
   formal_submission: { name: "formal_submission", label: "是否正式报送", type: "select", placeholder: "请选择", options: [{ label: "是", value: "yes" }, { label: "否", value: "no" }] },
   public_release: { name: "public_release", label: "是否用于公开发布", type: "select", placeholder: "" },
+  org_name: { name: "org_name", label: "单位名称", type: "text", placeholder: "如：XX街道/XX社区/XX局" },
+  org_region_type: { name: "org_region_type", label: "单位类型", type: "select", placeholder: "请选择单位类型", options: [
+    { label: "街道", value: "street" }, { label: "社区", value: "community" },
+    { label: "部委局", value: "government" }, { label: "事业单位", value: "institution" },
+    { label: "国企", value: "soe" }, { label: "其他", value: "other" }
+  ] },
+  org_characteristics: { name: "org_characteristics", label: "单位特色用语", type: "textarea", placeholder: "本单位常用的表述方式、特色用语等（选填，如XX街道习惯称居民为'街坊'）" },
 };
 export const cardStyleOptions: { label: string; value: CardStyle; description: string }[] = [
   { label: "正式稳妥版", value: "official", description: "表达规范，适合正式场合" },
