@@ -60,11 +60,13 @@ export async function generateContent(
   let providerName = preferredProvider;
   let modelName = "";
 
-  // Find matching active provider
-  const config = configs.find(c => c.provider === preferredProvider && c.is_active)
-    || configs.find(c => c.is_active && c.mode_mapping.includes(mode))
-    || configs.find(c => c.provider === preferredProvider)
-    || configs[0];
+  // Find matching active provider with API key, or fallback to any provider with a key
+  const preferred = configs.find(c => c.provider === preferredProvider && c.is_active && c.api_key);
+  const modeMapped = configs.find(c => c.is_active && c.mode_mapping.includes(mode) && c.api_key);
+  const anyWithKey = configs.find(c => c.is_active && c.api_key);
+  const fallback = configs.find(c => c.is_active);
+
+  const config = preferred || modeMapped || anyWithKey || fallback || configs[0];
 
   if (config) {
     providerName = config.provider;
@@ -80,7 +82,7 @@ export async function generateContent(
       case "glm": provider = new GLMProvider(config.api_key, config.api_url); break;
       case "ernie": provider = new ErnieProvider(config.api_key, config.api_url); break;
     }
-    if (provider && sysPrompt) provider.systemPrompt = sysPrompt;
+    if (provider) provider.systemPrompt = sysPrompt || provider.systemPrompt;
     if (temp !== undefined) options = { ...options, temperature: temp };
   }
 
