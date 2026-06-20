@@ -34,7 +34,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-[#1e293b]">注册</h1>
-          <p className="text-sm text-[#64748b] mt-1">创建您的办会工坊账号</p>
+          <p className="text-sm text-[#64748b] mt-1">创建您的办会助理账号</p>
         </div>
         <form onSubmit={handleSubmit} className="card p-6 space-y-4">
           {err && <div className="p-3 bg-[#fef2f2] border border-[#fecaca] rounded-lg text-xs text-[#991b1b]">{err}</div>}

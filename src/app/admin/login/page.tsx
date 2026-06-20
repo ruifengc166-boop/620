@@ -28,7 +28,7 @@ export default function AdminLogin() {
         <div className="text-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-[#1a56db] flex items-center justify-center text-white font-bold text-lg mx-auto mb-3">B</div>
           <h1 className="text-xl font-bold text-white">管理后台</h1>
-          <p className="text-sm text-[#94a3b8] mt-1">办会工坊 · 管理员登录</p>
+          <p className="text-sm text-[#94a3b8] mt-1">办会助理 · 管理员登录</p>
         </div>
         <form onSubmit={handleSubmit} className="bg-[#1e293b] rounded-xl p-6 space-y-4 border border-[#334155]">
           {err && <div className="p-3 bg-[#7f1d1d]/50 border border-[#991b1b] rounded-lg text-xs text-[#fca5a5]">{err}</div>}

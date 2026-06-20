@@ -6,7 +6,7 @@ import MobileNav from "@/components/layout/MobileNav";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "办会工坊 - 活动材料AI助手",
+  title: "办会助理 - 活动材料AI助手",
   description: "一站式活动材料AI工作流平台。写方案、主持词、新闻稿、总结，不再从零开始。",
 };
 

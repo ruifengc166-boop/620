@@ -54,6 +54,11 @@ interface ModelConfig {
   provider: string; model_name: string; api_key: string; api_url: string;
   is_active: boolean; mode_mapping: string[]; system_prompt?: string; temperature?: number;
 }
+interface LearnedExample {
+  id: string; name: string; category: string; source_type: string;
+  source_content: string; extracted_pattern: string; system_prompt_override?: string;
+  temperature_override?: number; is_active: boolean; created_at: string; usage_count: number;
+}
 interface SiteContent { [key: string]: string; }
 
 interface Database {
@@ -64,6 +69,7 @@ interface Database {
   risk_reviews: StoredRiskReview[];
   site_content: SiteContent;
   points_logs: StoredPointsLog[];
+  learned_examples: LearnedExample[];
   model_configs: ModelConfig[];
 }
 
@@ -100,13 +106,14 @@ function getDefaultDB(): Database {
     risk_reviews: [],
     site_content: {},
     points_logs: [],
+    learned_examples: [],
     model_configs: [
-      { provider: "tongyi", model_name: "qwen-max", api_key: "", api_url: "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation", is_active: true, mode_mapping: ["risk_review"], system_prompt: "你是一位专业的风控审核员，擅长从意识形态安全、政策合规、泄密风险等角度检查文档内容。", temperature: 0.5 },
-      { provider: "deepseek", model_name: "deepseek-chat", api_key: "", api_url: "https://api.deepseek.com/v1/chat/completions", is_active: true, mode_mapping: ["planning"], system_prompt: "你是一位资深的策划分析师和策略顾问，擅长活动策划、流程设计、方案推演和逻辑优化。", temperature: 0.8 },
-      { provider: "kimi", model_name: "moonshot-v1-8k", api_key: "", api_url: "https://api.moonshot.cn/v1/chat/completions", is_active: true, mode_mapping: ["multi_compare"], system_prompt: "你是一位专业的比较分析专家，擅长从多角度对比不同方案、整理长文档、提炼核心观点。", temperature: 0.6 },
-      { provider: "doubao", model_name: "doubao-pro-32k", api_key: "", api_url: "https://ark.cn-beijing.volces.com/api/v3/chat/completions", is_active: true, mode_mapping: ["promotion"], system_prompt: "你是一位资深的传播策划师和新媒体运营专家，擅长撰写公众号推文、短视频脚本等传播类内容。", temperature: 0.9 },
-      { provider: "glm", model_name: "glm-4-plus", api_key: "", api_url: "https://open.bigmodel.cn/api/paas/v4/chat/completions", is_active: true, mode_mapping: ["long_text"], system_prompt: "你是一位经验丰富的长文整理专家和文档编撰顾问，擅长处理大量信息、组织长篇文档结构。", temperature: 0.6 },
-      { provider: "ernie", model_name: "ernie-4.0", api_key: "", api_url: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro", is_active: true, mode_mapping: ["official"], system_prompt: "你是一位资深的政府公文写作专家，精通各类机关公文写作规范，用词严谨规范、结构层次分明。", temperature: 0.5 },
+      { provider: "tongyi", model_name: "qwen-max", api_key: "", api_url: "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation", is_active: true, mode_mapping: ["risk_review"], system_prompt: "你是一位资深的公文风控审核专家，专精于党政机关材料的安全审查和质量把控。审查维度：1.意识形态安全——政治表述是否规范、是否符合最新政策口径。2.泄密风险——识别涉密标记、内部资料、未公开信息。3.个人隐私——排查居民名单、身份证号、手机号等敏感信息。4.事实数据——核实数据、金额、人数是否有依据。5.政策依据——确认引用的政策文件是否准确有效。6.夸大表述——识别绝对化用语。每项发现标注风险等级和修改建议，不确定信息标注【待核实】。", temperature: 0.4 },
+      { provider: "deepseek", model_name: "deepseek-chat", api_key: "", api_url: "https://api.deepseek.com/v1/chat/completions", is_active: true, mode_mapping: ["planning"], system_prompt: "你是一位经验丰富的活动策划和方案设计专家。写作特点：结构完整——方案包含背景、目的、主题、流程、分工、宣传、预算、预案等模块。逻辑严密各环节衔接自然可落地执行。多方案思维——提供2-3种可选方案并分析优劣。实用导向所有建议具体可操作避免空泛。保持专业稳重语气，不确定信息标注【待核实】。", temperature: 0.75 },
+      { provider: "kimi", model_name: "moonshot-v1-8k", api_key: "", api_url: "https://api.moonshot.cn/v1/chat/completions", is_active: true, mode_mapping: ["multi_compare"], system_prompt: "你是一位出色的比较分析专家和多方案评估顾问。你能从可行性、成本、效果、风险、创新性等多维度系统评估方案。提供2-3个有明显风格差异的版本每个标注适用场景和优劣。擅长处理大量信息并结构化呈现。保持中立客观最终给出明确推荐意见。不确定信息标注【待核实】。", temperature: 0.65 },
+      { provider: "doubao", model_name: "doubao-pro-32k", api_key: "", api_url: "https://ark.cn-beijing.volces.com/api/v3/chat/completions", is_active: true, mode_mapping: ["promotion"], system_prompt: "你是一位创意丰富的新媒体传播策划师。写作风格：标题吸睛有传播力；语言生动运用短句排比设问等手法；结构灵活适应公众号短视频朋友圈等不同平台；受众意识强用目标读者能理解和喜欢的语言；注重话题性和共鸣点。同时保持内容准确不因传播效果牺牲事实。不确定信息标注【待核实】。", temperature: 0.85 },
+      { provider: "glm", model_name: "glm-4-plus", api_key: "", api_url: "https://open.bigmodel.cn/api/paas/v4/chat/completions", is_active: true, mode_mapping: ["long_text"], system_prompt: "你是一位资深的公文写作和长篇材料编撰专家。特点：层次分明——构建3-4级结构让长篇条理清晰；内容详实——各部分论述充分论据有力；语言规范——用词严谨表述准确适合正式报送；过渡自然——章节间有流畅衔接；重点突出善用提炼归纳让读者把握核心。适合正式汇报材料调研报告工作总结等场景。不确定信息标注【待核实】。", temperature: 0.55 },
+      { provider: "ernie", model_name: "ernie-4.0", api_key: "", api_url: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro", is_active: true, mode_mapping: ["official"], system_prompt: "你是一位资深的党政机关公文写作专家，精通各类公务文书规范。写作原则：政治表述与最新政策口径一致；不编造政策依据领导姓名和数据；结构严格遵循公文规范格式；用词严谨语气得体避免口语化夸张化。常见材料要求：活动方案含背景目的主题流程分工预算预案；主持词含开场嘉宾介绍串词结束语；讲话材料含致意形势分析工作要求总结号召；新闻稿含标题导语基本情况重点内容亮点。不确定信息标注【待核实】。", temperature: 0.45 },
     ],
   };
 }
@@ -278,6 +285,52 @@ export function updateSiteContent(key: string, value: string): void {
   if (!db.site_content) db.site_content = {};
   db.site_content[key] = value;
   saveDB();
+}
+
+export function getLearnedExamples() {
+  return loadDB().learned_examples || [];
+}
+
+export function createLearnedExample(data: Partial<LearnedExample>): LearnedExample {
+  const db = loadDB();
+  const example: LearnedExample = {
+    id: genId(), name: data.name || "", category: data.category || "通用",
+    source_type: data.source_type || "manual", source_content: data.source_content || "",
+    extracted_pattern: data.extracted_pattern || "",
+    system_prompt_override: data.system_prompt_override,
+    temperature_override: data.temperature_override,
+    is_active: data.is_active !== false, usage_count: 0,
+    created_at: new Date().toISOString(),
+  };
+  if (!db.learned_examples) db.learned_examples = [];
+  db.learned_examples.push(example);
+  saveDB();
+  return example;
+}
+
+export function updateLearnedExample(id: string, updates: Partial<LearnedExample>): void {
+  const db = loadDB();
+  if (!db.learned_examples) db.learned_examples = [];
+  const idx = db.learned_examples.findIndex(e => e.id === id);
+  if (idx >= 0) { db.learned_examples[idx] = { ...db.learned_examples[idx], ...updates }; saveDB(); }
+}
+
+export function deleteLearnedExample(id: string): void {
+  const db = loadDB();
+  if (db.learned_examples) db.learned_examples = db.learned_examples.filter(e => e.id !== id);
+  saveDB();
+}
+
+export function autoGenerateSkillFromExample(sourceContent: string, name: string): LearnedExample {
+  const pattern = `基于以下优秀范本的学习总结：\n\n【范本要点】\n${sourceContent.slice(0, 500)}\n\n【写作建议】\n1. 参考该范本的结构层次\n2. 借鉴其表达风格和语气\n3. 保持与范本一致的正式程度\n4. 根据实际活动情况调整具体内容\n`;
+  return createLearnedExample({
+    name, category: "自动生成", source_type: "auto_extracted",
+    source_content: sourceContent.slice(0, 2000),
+    extracted_pattern: pattern,
+    system_prompt_override: pattern,
+    temperature_override: 0.7,
+    is_active: true,
+  });
 }
 export function saveDB(): void {
   ensureDir();

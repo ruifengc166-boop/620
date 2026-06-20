@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 const defaults: Record<string, string> = {
   // ========== 首页 ==========
-  page_home_title: "办会工坊",
+  page_home_title: "办会助理",
   page_home_subtitle: "一站式活动材料 AI 助手",
   page_home_slogan: "写方案、主持词、新闻稿、总结，不再从零开始",
   page_home_security: "默认不保存原始资料。请勿上传涉密、内部、隐私及商业秘密内容。",
@@ -16,7 +16,7 @@ const defaults: Record<string, string> = {
   page_home_tips: "默认不保存原始资料 \u00b7 即用即走 \u00b7 安全生成",
 
   // ========== 全局导航 ==========
-  nav_brand: "办会工坊",
+  nav_brand: "办会助理",
   nav_tagline: "| 材料AI助手",
   nav_quick_write: "快速写材料",
   nav_run_activity: "办一场活动",
@@ -31,7 +31,7 @@ const defaults: Record<string, string> = {
 
   // ========== 登录页 ==========
   page_login_title: "登录",
-  page_login_subtitle: "欢迎回到办会工坊",
+  page_login_subtitle: "欢迎回到办会助理",
   page_login_email: "邮箱",
   page_login_password: "密码",
   page_login_button: "登录",
@@ -41,7 +41,7 @@ const defaults: Record<string, string> = {
 
   // ========== 注册页 ==========
   page_register_title: "注册",
-  page_register_subtitle: "创建您的办会工坊账号",
+  page_register_subtitle: "创建您的办会助理账号",
   page_register_nickname: "昵称",
   page_register_email: "邮箱",
   page_register_password: "密码",
@@ -130,7 +130,7 @@ const defaults: Record<string, string> = {
   page_role_subtitle: "选择您的角色，快速进入常用任务",
 
   // ========== 页脚 ==========
-  footer_copyright: "\u00a9 2026 办会工坊 版权所有",
+  footer_copyright: "\u00a9 2026 办会助理 版权所有",
   footer_tagline: "少加班，快交稿，材料不出错",
   footer_entries_title: "快速入口",
   footer_security_title: "安全提示",

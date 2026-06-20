@@ -30,7 +30,7 @@ export default function Header() {
       <div className="container-app">
         <div className="flex items-center justify-between h-14 md:h-16">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-xl md:text-2xl font-bold text-[#1a56db]">办会工坊</span>
+            <span className="text-xl md:text-2xl font-bold text-[#1a56db]">办会助理</span>
             <span className="hidden sm:inline text-xs text-[#64748b] ml-1">| 材料AI助手</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">

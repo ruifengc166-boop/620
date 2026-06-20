@@ -19,7 +19,7 @@ export default function HomePage() {
       <section className="bg-gradient-to-br from-[#1a56db] via-[#2563eb] to-[#1e40af] text-white">
         <div className="container-app py-12 md:py-16">
           <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">办会工坊</h1>
+            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">办会助理</h1>
             <p className="text-base md:text-xl text-[#bfdbfe] max-w-2xl mx-auto">一站式活动材料 AI 助手</p>
             <p className="text-sm text-[#93c5fd] mt-2">写方案、主持词、新闻稿、总结，不再从零开始</p>
           </div>

@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <aside className="hidden md:block w-56 bg-white border-r border-[#e2e8f0] min-h-screen p-4">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-8 h-8 rounded-lg bg-[#1a56db] flex items-center justify-center text-white font-bold text-sm">B</div>
-            <div><div className="font-semibold text-sm">管理后台</div><div className="text-[0.6rem] text-[#94a3b8]">办会工坊</div></div>
+            <div><div className="font-semibold text-sm">管理后台</div><div className="text-[0.6rem] text-[#94a3b8]">办会助理</div></div>
           </div>
           <nav className="space-y-1">
             {nav.map(n => <Link key={n.href} href={n.href} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${pathname === n.href ? "bg-[#eff6ff] text-[#1a56db] font-medium" : "text-[#475569] hover:bg-[#f1f5f9]"}`}>{n.label}</Link>)}
