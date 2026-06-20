@@ -576,7 +576,7 @@
     {
       "provider": "deepseek",
       "model_name": "deepseek-chat",
-      "api_key": "sk-a3d3076f10aa400fbe308d239bc81548",
+      "api_key": "",
       "api_url": "https://api.deepseek.com/v1/chat/completions",
       "is_active": true,
       "mode_mapping": [
