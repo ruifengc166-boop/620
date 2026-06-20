@@ -15,7 +15,7 @@ export default function TaskFormInner() {
   const [step, setStep] = useState("fill");
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [selectedMode, setSelectedMode] = useState("official");
-  const [selectedStyles, setSelectedStyles] = useState<string[]>(["official", "concise", "promotion", "highlight", "creative"]);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(["official", "concise"]);
   const [results, setResults] = useState<GenerationResult[]>([]);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showRiskCheck, setShowRiskCheck] = useState<GenerationResult | null>(null);

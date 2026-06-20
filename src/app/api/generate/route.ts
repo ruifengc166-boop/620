@@ -30,28 +30,33 @@ export async function POST(req: NextRequest) {
     }
 
     const results = [];
-    const modes = cards || [mode || "official"];
+    // Limit to first 3 modes to avoid timeout on slower APIs
+    const modes = (cards || [mode || "official"]).slice(0, 3);
 
     for (const m of modes) {
-      const result = await generateContent(m as any, task_type, input);
-      results.push({
-        id: Math.random().toString(36).slice(2, 8),
-        title: `${task_type}（${m}模式）`,
-        style: m, styleLabel: m,
-        content: result.content,
-        summary: `基于${task_type}任务，使用${result.provider}模型生成`,
-        riskLevel: "low", provider: result.provider, model: result.model,
-      });
-      if (user_id) {
-        createGeneration({ user_id, task_type, event_type: task_type, generation_mode: m, model_provider: result.provider, model_name: result.model, points_used: POINTS_PER_GEN });
-        // Deduct points
-        const db = loadDB();
-        const uidx = db.users.findIndex((u: any) => u.id === user_id);
-        if (uidx >= 0) {
-          db.users[uidx].points_balance = Math.max(0, (db.users[uidx].points_balance || 0) - POINTS_PER_GEN);
-          saveDB();
+      try {
+        const result = await generateContent(m as any, task_type, input);
+        results.push({
+          id: Math.random().toString(36).slice(2, 8),
+          title: `${task_type}（${m}模式）`,
+          style: m, styleLabel: m,
+          content: result.content,
+          summary: `基于${task_type}任务，使用${result.provider}模型生成`,
+          riskLevel: "low", provider: result.provider, model: result.model,
+        });
+        if (user_id) {
+          createGeneration({ user_id, task_type, event_type: task_type, generation_mode: m, model_provider: result.provider, model_name: result.model, points_used: POINTS_PER_GEN });
+          const db = loadDB();
+          const uidx = db.users.findIndex((u: any) => u.id === user_id);
+          if (uidx >= 0) {
+            db.users[uidx].points_balance = Math.max(0, (db.users[uidx].points_balance || 0) - POINTS_PER_GEN);
+            saveDB();
+          }
+          addPointsLog({ user_id, action_type: "generate", points_change: -POINTS_PER_GEN });
         }
-        addPointsLog({ user_id, action_type: "generate", points_change: -POINTS_PER_GEN });
+      } catch (e) {
+        // Skip failed modes, continue with next
+        continue;
       }
     }
 
