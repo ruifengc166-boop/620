@@ -1,9 +1,25 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 import crypto from "crypto";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+function getDataDir(): string {
+  const primary = path.join(process.cwd(), "data");
+  try {
+    if (!fs.existsSync(primary)) fs.mkdirSync(primary, { recursive: true });
+    const test = path.join(primary, ".write-test");
+    fs.writeFileSync(test, "");
+    fs.unlinkSync(test);
+    return primary;
+  } catch {
+    const fallback = path.join(os.tmpdir(), "banhuigongfang-data");
+    if (!fs.existsSync(fallback)) fs.mkdirSync(fallback, { recursive: true });
+    return fallback;
+  }
+}
+
+const DATA_DIR = getDataDir();
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
 interface StoredUser {
