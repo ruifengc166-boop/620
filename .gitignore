@@ -42,7 +42,6 @@ next-env.d.ts
 
 # data
 /data/db.json
-/data/
 
 
 # temp files
