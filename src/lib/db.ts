@@ -127,6 +127,17 @@ export function loadDB(): Database {
   ensureDir();
   if (_cache) return _cache;
   if (!fs.existsSync(DB_FILE)) {
+    // Try seed.json for persistent defaults (Netlify)
+    const SEED_FILE = path.join(process.cwd(), "data", "seed.json");
+    if (fs.existsSync(SEED_FILE)) {
+      try {
+        const seedRaw = fs.readFileSync(SEED_FILE, "utf-8");
+        const seed = JSON.parse(seedRaw);
+        fs.writeFileSync(DB_FILE, JSON.stringify(seed, null, 2), "utf-8");
+        _cache = seed;
+        return seed;
+      } catch {}
+    }
     const def = getDefaultDB();
     fs.writeFileSync(DB_FILE, JSON.stringify(def, null, 2), "utf-8");
     _cache = def;
