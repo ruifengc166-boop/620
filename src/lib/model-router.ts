@@ -55,6 +55,18 @@ function buildPrompt(mode: GenerationMode, taskType: string, input: Record<strin
   if (input.expected_tone) guidance.push(`请以\"${input.expected_tone}\"的语气撰写`);
   if (input.formal_submission === "yes") guidance.push(`该材料用于正式报送，格式和用语需规范严谨`);
   if (input.public_release === "yes") guidance.push(`该材料用于公开发布，需注意政治正确性和信息准确性`);
+
+  // Style-specific writing guidance for multi-version output
+  const styleGuidance: Record<string, string> = {
+    official: "请生成正式稳妥版：结构规范、表达严谨、适合正式报送。",
+    concise: "请生成简洁实用版：语言精炼、重点清晰、便于快速使用。",
+    promotion: "请生成宣传传播版：标题有吸引力，语言适合公众号和新媒体。",
+    highlight: "请生成亮点提炼版：突出核心亮点、成果价值和传播要点。",
+    creative: "请生成创意策划版：角度新颖、形式有创意，保持可执行性。",
+  };
+  if (input.output_style && styleGuidance[input.output_style]) {
+    guidance.push(styleGuidance[input.output_style]);
+  }
   if (guidance.length === 0) guidance.push(`根据用户提供的活动信息，完整呈现材料内容`);
   
   base += `\n【写作要求】\n${guidance.map(g => `- ${g}`).join("\n")}\n`;

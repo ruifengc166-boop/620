@@ -21,14 +21,13 @@ export async function POST(req: NextRequest) {
     const isAdmin = user_id === "admin";
     if (user_id && !isAdmin) {
       const user = findUserById(user_id);
-      if (!user) { /* user not in DB, skip validation */ } else {
+      if (!user) return NextResponse.json({ ok: false, msg: "用户不存在，请重新登录" }, { status: 404 });
         const today = new Date().toISOString().slice(0, 10);
         const todayGens = getAllGenerations().filter(g => g.user_id === user_id && g.created_at.startsWith(today));
         const limit = planLimits[user.membership_level] || 10;
         if (todayGens.length >= limit) return NextResponse.json({ ok: false, msg: "今日生成次数已用尽" }, { status: 429 });
         const requiredPoints = styles.length * POINTS_PER_GEN;
-        if (user.points_balance < requiredPoints) return NextResponse.json({ ok: false, msg: "积分不足，需要${requiredPoints}点，剩余${user.points_balance}点" }, { status: 402 });
-      }
+          if (user.points_balance < requiredPoints) return NextResponse.json({ ok: false, msg: `积分不足，需要${requiredPoints}点，剩余${user.points_balance}点` }, { status: 402 });
     }
 
     const results = [];
