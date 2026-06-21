@@ -51,7 +51,17 @@ export default function TaskFormInner() {
   const allFields = task.specificFields || [];
 
   const setField = (n: string, v: string) => { setFormData((p: Record<string, string>) => ({ ...p, [n]: v })); setErrors((p) => { const next = { ...p }; delete next[n]; return next; }); };
-  const toggleStyle = (s: string) => setSelectedStyles((p: string[]) => p.includes(s) ? p.filter((x: string) => x !== s) : [...p, s]);
+  const toggleStyle = (s: string) => {
+  setSelectedStyles((p: string[]) => {
+    if (p.includes(s)) return p.filter(x => x !== s);
+    if (p.length >= 3) {
+      setGenerateError("最多选择3个版本风格");
+      return p;
+    }
+    setGenerateError("");
+    return [...p, s];
+  });
+};
 
   const validateRequiredFields = () => {
     const allFieldsArray = [...commonFields, ...allFields];
