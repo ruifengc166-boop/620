@@ -15,6 +15,10 @@ const COOKIE_NAME = "banhui_session_token";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const SESSION_SECRET = process.env.SESSION_SECRET || "local-dev-session-secret-change-before-production";
 
+if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET is required in production");
+}
+
 function base64url(input: Buffer | string) {
   return Buffer.from(input).toString("base64url");
 }
