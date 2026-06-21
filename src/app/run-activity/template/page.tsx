@@ -20,11 +20,61 @@ function TemplateDetail() {
   const tmpl = useMemo(() => activityTemplates.find(t => t.id === tid), [tid]);
   const materials = tmpl ? tmpl.materials : [];
   const [selected, setSelected] = useState(materials.slice(0, Math.min(6, materials.length)));
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedMaterials, setGeneratedMaterials] = useState<Record<string, string>>({});
+  const [generateError, setGenerateError] = useState("");
 
   if (!tmpl) return <div className="container-app py-12 text-center text-[#64748b]">未找到模板<Link href="/run-activity" className="text-[#1a56db] ml-2">返回</Link></div>;
 
   const toggleMat = (m: string) => setSelected((p: string[]) => p.includes(m) ? p.filter((x: string) => x !== m) : [...p, m]);
   const setF = (k: string, v: string) => setForm((p: Record<string, string>) => ({ ...p, [k]: v }));
+  const materialToTaskType: Record<string, string> = {
+    "活动方案":"活动方案","会议方案":"活动方案","招商活动方案":"活动方案","开幕方案":"活动方案","签约方案":"活动方案","培训方案":"活动方案",
+    "主持词":"主持词",
+    "领导致辞初稿":"领导致辞初稿","领导讲话初稿":"领导致辞初稿","书记讲话初稿":"领导致辞初稿","领导开班讲话":"领导致辞初稿",
+    "新闻稿":"新闻稿","媒体通稿":"新闻稿","新闻通稿":"新闻稿",
+    "公众号推文":"公众号推文",
+    "居民通知":"活动通知","活动通知":"活动通知","会议通知":"活动通知","培训通知":"活动通知",
+    "企业邀请函":"邀请函","嘉宾邀请函":"邀请函",
+    "活动总结":"活动总结","培训总结":"活动总结",
+    "工作简报":"工作简报",
+    "任务分解表":"任务分工表","任务分工表":"任务分工表",
+    "流程表":"活动流程表","签约流程表":"活动流程表","会议议程":"活动流程表",
+  };
+
+  const buildInput = () => ({
+    activity_name: form.name, host_unit: form.host, organizer_unit: form.organizer,
+    activity_time: form.time, activity_location: form.location,
+    participants: form.participants, attendance_count: form.attendance,
+    activity_background: form.background, activity_type: tmpl.name,
+    template_name: tmpl.name, template_category: tmpl.category,
+  });
+
+  const handleGeneratePackage = async () => {
+    if (!form.name?.trim()) { setGenerateError("请先填写活动名称"); return; }
+    if (selected.length === 0) { setGenerateError("请至少选择一份材料"); return; }
+    setIsGenerating(true); setGenerateError(""); setStep("result");
+    const session = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("banhui_session") || "null") : null;
+    const next: Record<string, string> = {};
+    for (const mat of selected) {
+      try {
+        const taskType = materialToTaskType[mat] || mat;
+        const res = await fetch("/api/generate", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "official", task_type: taskType, cards: ["official"],
+            input: { ...buildInput(), package_material_name: mat, package_generation: "yes" },
+            user_id: session?.userId || null,
+          }),
+        });
+        const data = await res.json();
+        next[mat] = data.ok && data.results?.[0]?.content ? data.results[0].content : "【" + mat + "】生成失败：" + (data.msg || "请稍后重试");
+      } catch { next[mat] = "【" + mat + "】生成失败：网络错误"; }
+    }
+    setGeneratedMaterials(next);
+    setIsGenerating(false);
+  };
+
 
   const steps = [
     { key: "info", label: "活动信息", num: 1 },
@@ -86,7 +136,7 @@ function TemplateDetail() {
             <div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg mb-4 text-xs text-[#166534]">本工具仅生成材料初稿。政策依据、数据、姓名、职务等信息必须由用户自行核实。</div>
             <div className="flex gap-3">
               <button onClick={()=>setStep("info")} className="btn-secondary">上一步</button>
-              <button onClick={()=>setStep("result")} className="btn-primary flex-1 justify-center py-3 text-base" disabled={selected.length===0}>✨ 生成 {selected.length} 份材料</button>
+              <button onClick={handleGeneratePackage} className="btn-primary flex-1 justify-center py-3 text-base" disabled={selected.length===0||isGenerating}>{isGenerating ? "正在生成..." : `✨ 生成 ${selected.length} 份材料`}</button>
             </div>
           </div>
         </div>
@@ -102,7 +152,7 @@ function TemplateDetail() {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-sm">{mat}</h3>
                   <div className="flex gap-1.5">
-                    <button className="btn-sm text-xs btn-secondary" onClick={()=>{navigator.clipboard.writeText(form.name+mat+"初稿…"); alert("已复制");}}>复制</button>
+                    <button className="btn-sm text-xs btn-secondary" onClick={()=>{navigator.clipboard.writeText(generatedMaterials[mat] || form.name+mat+"初稿"); alert("已复制");}}>复制</button>
                     <Link href={"/quick-write/task?id="+(mat==="活动方案"?"activity_plan":mat==="主持词"?"host_script":mat==="新闻稿"?"news_release":mat==="活动总结"?"activity_summary":mat==="公众号推文"?"official_account":mat==="邀请函"?"invitation":mat==="活动通知"?"activity_notice":"activity_plan")} className="btn-sm text-xs btn-secondary">深度编辑</Link>
                   </div>
                 </div>
@@ -112,7 +162,7 @@ function TemplateDetail() {
                 </div>
                 <div className="mt-3 pt-3 border-t border-[#e2e8f0] flex gap-2">
                   <button className="btn-sm text-xs btn-secondary" onClick={()=>{if(window.confirm("请确认该材料不包含涉密、未公开、个人隐私、商业秘密或未经授权内容。")) { setSavedMsg("已保存到「我的材料」"); setTimeout(()=>setSavedMsg(""), 3000); };}}>💾 保存</button>
-              <button className="btn-sm text-xs btn-secondary" onClick={() => exportWord(mat, "【"+mat+"】\n"+(form.background||""))}>📤 Word</button>
+              <button className="btn-sm text-xs btn-secondary" onClick={() => exportWord(mat, generatedMaterials[mat] || "【"+mat+"】\n"+(form.background||""))}>📤 Word</button>
                   <button className="btn-sm text-xs btn-secondary" onClick={()=>window.print()}>📤 导出PDF</button>
                 </div>
               </div>
@@ -120,7 +170,7 @@ function TemplateDetail() {
           </div>
           <div className="mt-6 text-center space-y-2">
             <div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-xs text-[#166534]"><strong>导出提示：</strong>导出内容仍需人工审核。</div>
-            <button className="btn-secondary text-sm" onClick={()=>exportMaterialPackage(form.name+tmpl.name+"材料包", selected.map(m=>({name:m,content:"【"+m+"】\\n\\n基于"+tmpl.name+"生成\\n\\n"+(form.background||"")+"\\n\\n【待补充】"})))}>📤 导出整套文档</button>
+            <button className="btn-secondary text-sm" onClick={()=>exportMaterialPackage(form.name+tmpl.name+"材料包", selected.map(m=>({name:m,content:generatedMaterials[m]||("【"+m+"】\n\n基于"+tmpl.name+"生成\n\n"+(form.background||"")+"\n\n【待补充】")})))}>📤 导出整套文档</button>
 
           {/* Meeting Execution Tools */}
           <div className="mt-8 pt-6 border-t border-[#e2e8f0]">
