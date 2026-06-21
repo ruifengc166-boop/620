@@ -24,7 +24,7 @@ export default function HomePage() {
             <p className="text-sm text-[#93c5fd] mt-2">写方案、主持词、新闻稿、总结，不再从零开始</p>
           </div>
 
-          {/* Three Main Entries */}
+          {/* Two Main Entries */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             <Link href="/quick-write" className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 text-center hover:bg-white/20 transition-all hover:scale-[1.02]">
               <div className="text-4xl mb-2">✍️</div>
@@ -34,9 +34,8 @@ export default function HomePage() {
             <Link href="/run-activity" className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 text-center hover:bg-white/20 transition-all hover:scale-[1.02]">
               <div className="text-4xl mb-2">🎉</div>
               <h2 className="font-semibold text-lg">我要办一场活动</h2>
-              <p className="text-sm text-[#bfdbfe] mt-1">24个活动模板，整套材料包生成</p>
+              <p className="text-sm text-[#bfdbfe] mt-1">填写一次信息，生成整套活动材料</p>
             </Link>
-            
           </div>
 
           {/* Platform features */}
@@ -122,7 +121,7 @@ export default function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link href="/templates" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all">
             <span className="text-3xl">📐</span>
-            <div><div className="font-semibold text-sm">模板广场</div><div className="text-xs text-[#64748b]">24个活动模板</div></div>
+            <div><div className="font-semibold text-sm">活动材料包库</div><div className="text-xs text-[#64748b]">先看模板包，再进入生成</div></div>
           </Link>
           <Link href="/sample-demo" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all">
             <span className="text-3xl">🎬</span>
@@ -130,16 +129,6 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
-
-
     </div>
   );
 }
-
-
-
-
-
-
-
-
