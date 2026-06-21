@@ -10,10 +10,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("banhui_admin") === "1";
     if (pathname === "/admin/login") { setLoading(false); return; }
-    if (!isAdmin) { router.push("/admin/login"); return; }
-    setAuthed(true); setLoading(false);
+    fetch("/api/auth/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.ok && d.user?.role === "admin") {
+          setAuthed(true);
+        } else {
+          localStorage.removeItem("banhui_admin");
+          router.push("/admin/login");
+        }
+      })
+      .catch(() => router.push("/admin/login"))
+      .finally(() => setLoading(false));
   }, [pathname, router]);
 
   if (loading) return <div className="min-h-screen bg-[#0f172a]" />;
@@ -26,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/users", label: "👥 用户管理" },
     { href: "/admin/templates", label: "📐 模板管理" },
     { href: "/admin/models", label: "🤖 模型配置" },
-    { href: "/admin/plans", label: "💎 套餐管理" },
+    { href: "/admin/plans", label: "💎 套餐管理" },
   ];
 
   return (
@@ -39,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <nav className="space-y-1">
             {nav.map(n => <Link key={n.href} href={n.href} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${pathname === n.href ? "bg-[#eff6ff] text-[#1a56db] font-medium" : "text-[#475569] hover:bg-[#f1f5f9]"}`}>{n.label}</Link>)}
-            <button onClick={() => { localStorage.removeItem("banhui_admin"); window.location.href = "/admin/login"; }} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#dc2626] hover:bg-[#fef2f2] mt-4">🚪 退出</button>
+            <button onClick={async () => { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); localStorage.removeItem("banhui_admin"); localStorage.removeItem("banhui_session"); window.location.href = "/admin/login"; }} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#dc2626] hover:bg-[#fef2f2] mt-4">🚪 退出</button>
           </nav>
         </aside>
         <main className="flex-1 p-4 md:p-6 pb-20">{children}</main>
@@ -47,7 +56,3 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
-
-
-
-
