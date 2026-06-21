@@ -24,6 +24,9 @@ export default function TaskFormInner() {
   const [usage, setUsage] = useState<{remaining:number;daily_limit:number}|null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [fusionMode, setFusionMode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState("");
   const [fusionSelections, setFusionSelections] = useState<Set<string>>(new Set());
   const [fusionResult, setFusionResult] = useState<GenerationResult | null>(null);
   const [savedMaterials, setSavedMaterials] = useState<GenerationResult[]>([]);
@@ -47,8 +50,23 @@ export default function TaskFormInner() {
 ].filter(Boolean);
   const allFields = task.specificFields || [];
 
-  const setField = (n: string, v: string) => setFormData((p: Record<string, string>) => ({ ...p, [n]: v }));
+  const setField = (n: string, v: string) => { setFormData((p: Record<string, string>) => ({ ...p, [n]: v })); setErrors((p) => { const next = { ...p }; delete next[n]; return next; }); };
   const toggleStyle = (s: string) => setSelectedStyles((p: string[]) => p.includes(s) ? p.filter((x: string) => x !== s) : [...p, s]);
+
+  const validateRequiredFields = () => {
+    const allFieldsArray = [...commonFields, ...allFields];
+    const fieldMap = new Map(allFieldsArray.map((f: any) => [f.name, f]));
+    const requiredNames = (task as any)?.requiredFields || allFieldsArray.filter((f: any) => f.required).map((f: any) => f.name);
+    const nextErrors: Record<string, string> = {};
+    requiredNames.forEach((name: string) => {
+      if (!String(formData[name] || "").trim()) {
+        nextErrors[name] = `请填写${fieldMap.get(name)?.label || name}`;
+      }
+    });
+    if (selectedStyles.length === 0) nextErrors.styles = "请至少选择一个版本风格";
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
 
   const handleGenerate = async () => {
     if (usage && (usage?.remaining ?? 0) <= 0) { setShowQuotaModal(true); return; }
@@ -81,6 +99,19 @@ export default function TaskFormInner() {
   };
   const handleRisk = (r: GenerationResult) => { setShowRiskCheck(r); setRiskResult(generateRiskCheckResult(r.content)); };
   const copyText = (t: string) => { navigator.clipboard.writeText(t); alert("已复制到剪贴板"); };
+
+  if (step === "generating") {
+    return (
+      <div className="container-app py-16 animate-fade-in">
+        <div className="max-w-md mx-auto card p-8 text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-[#dbeafe] border-t-[#1a56db] animate-spin" />
+          <h2 className="text-lg font-semibold text-[#1e293b] mb-2">正在生成材料</h2>
+          <p className="text-sm text-[#64748b]">正在根据你填写的信息生成 {selectedStyles.length} 个版本，请不要关闭页面。</p>
+          <div className="mt-4 text-xs text-[#94a3b8]">生成完成后将自动进入结果页</div>
+        </div>
+      </div>
+    );
+  }
 
   if (step === "fill") {
     return (
@@ -149,7 +180,10 @@ export default function TaskFormInner() {
             <div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg mb-6 text-xs text-[#166534]">本工具仅生成材料初稿。政策依据、数据、姓名、职务等信息必须由用户自行核实。</div>
             <SessionMaterials formData={formData} onClear={() => { setFormData({}); setSavedMsg("素材已清空"); setTimeout(()=>setSavedMsg(""), 2000); }} />
             {usage && <div className={"text-xs text-center mb-2 "+((usage?.remaining ?? 0)<3?"text-[#dc2626]":"text-[#64748b]")}>今日剩余{(usage?.remaining ?? 0)}次生成次数{(usage?.remaining ?? 0)<3?"⚠️":""}</div>}
-            <button onClick={handleGenerate} className="btn-primary w-full justify-center py-3 text-base">✨ 生成{selectedStyles.length}个版本</button>
+            {generateError && <div className="mb-3 p-3 bg-[#fef2f2] border border-[#fecaca] rounded-lg text-xs text-[#dc2626]">{generateError}</div>}
+          <button onClick={handleGenerate} disabled={isGenerating || selectedStyles.length === 0} className="btn-primary w-full justify-center py-3 text-base disabled:opacity-60">
+            {isGenerating ? "正在生成..." : `✨ 生成${selectedStyles.length}个版本`}
+          </button>
           </div>
         </div>
       </div>
