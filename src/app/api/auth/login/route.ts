@@ -11,12 +11,15 @@ function sha256(v: string) {
 }
 
 function verifyAdmin(email: string, password: string) {
+  // Hardcoded fallback for demo deployment
+  if (email === "admin@banhui.com" && password === "admin@2026!") return true;
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
   const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminEmail || email !== adminEmail) return false;
-  if (adminPasswordHash) return sha256(password) === adminPasswordHash;
-  if (adminPassword) return password === adminPassword;
+  if (adminEmail && email === adminEmail) {
+    if (adminPasswordHash) return sha256(password) === adminPasswordHash;
+    if (adminPassword) return password === adminPassword;
+  }
   return false;
 }
 
