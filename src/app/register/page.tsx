@@ -17,14 +17,14 @@ export default function RegisterPage() {
 
   if (isAuthenticated) { router.push("/account"); return null; }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(""); setErr("");
     if (!nickname || !email || !password) { setErr("请填写所有字段"); return; }
     if (password !== confirm) { setErr("两次密码不一致"); return; }
-    const res = register(nickname, email, password);
+    const res = await register(nickname, email, password);
     if (res.ok) {
-      login(email, password);
+      await login(email, password);
       setMsg("注册成功"); setTimeout(() => router.push("/account"), 500);
     } else setErr(res.msg);
   };

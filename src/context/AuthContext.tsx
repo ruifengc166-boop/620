@@ -5,16 +5,16 @@ import { login as authLogin, register as authRegister, logout as authLogout, get
 
 interface AuthContextType {
   user: Session | null;
-  login: (email: string, password: string) => { ok: boolean; msg: string };
-  register: (nickname: string, email: string, password: string) => { ok: boolean; msg: string };
+  login: (email: string, password: string) => Promise<{ ok: boolean; msg: string }>;
+  register: (nickname: string, email: string, password: string) => Promise<{ ok: boolean; msg: string }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  login: () => ({ ok: false, msg: "" }),
-  register: () => ({ ok: false, msg: "" }),
+  login: async () => ({ ok: false, msg: "" }),
+  register: async () => ({ ok: false, msg: "" }),
   logout: () => {},
   isAuthenticated: false,
 });
@@ -29,14 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setReady(true);
   }, []);
 
-  const login = useCallback((email: string, password: string) => {
-    const res = authLogin(email, password);
+  const login = useCallback(async (email: string, password: string) => {
+    const res = await authLogin(email, password);
     if (res.ok && res.session) setUser(res.session);
     return { ok: res.ok, msg: res.msg };
   }, []);
 
-  const register = useCallback((nickname: string, email: string, password: string) => {
-    const res = authRegister(nickname, email, password);
+  const register = useCallback(async (nickname: string, email: string, password: string) => {
+    const res = await authRegister(nickname, email, password);
     return { ok: res.ok, msg: res.msg };
   }, []);
 

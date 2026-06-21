@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import crypto from "crypto";
+import { initDatabase, syncUsers } from "./database";
 
 function getDataDir(): string {
   const primary = path.join(process.cwd(), "data");

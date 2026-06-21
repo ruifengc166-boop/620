@@ -15,11 +15,11 @@ export default function LoginPage() {
 
   if (isAuthenticated) { router.push("/account"); return null; }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(""); setErr("");
     if (!email || !password) { setErr("请填写邮箱和密码"); return; }
-    const res = login(email, password);
+    const res = await login(email, password);
     if (res.ok) { setMsg("登录成功"); setTimeout(() => router.push("/account"), 500); }
     else setErr(res.msg);
   };

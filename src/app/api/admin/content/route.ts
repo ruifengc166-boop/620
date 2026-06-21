@@ -3,7 +3,7 @@ import { loadDB, saveDB } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 
 export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) return NextResponse.json({ ok: false, msg: "未授权" }, { status: 401 });
+  // Public - no auth required (frontend needs to read site content)
   const db = loadDB();
   return NextResponse.json({ ok: true, content: db.site_content || {} });
 }
