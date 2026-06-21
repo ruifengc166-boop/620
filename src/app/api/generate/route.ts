@@ -3,6 +3,7 @@ import { generateContent } from "@/lib/model-router";
 import { createGeneration, getAllGenerations, findUserById, loadDB, saveDB, addPointsLog } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/server-auth";
 import { checkRequestRateLimit } from "@/lib/rate-limit";
+import { isSameOriginRequest } from "@/lib/request-security";
 
 const planLimits: Record<string, number> = { free: 10, pro: 50, expert: 200, admin: 99999 };
 const POINTS_PER_GEN = 1;
@@ -14,6 +15,8 @@ function inputSize(input: any) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isSameOriginRequest(req)) return NextResponse.json({ ok: false, msg: "非法来源请求" }, { status: 403 });
+
   const session = getSessionFromRequest(req);
   if (!session) return NextResponse.json({ ok: false, msg: "请先登录" }, { status: 401 });
 
