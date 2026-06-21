@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       official: "正式稳妥版", concise: "简洁实用版", promotion: "宣传传播版",
       highlight: "亮点提炼版", creative: "创意策划版",
     };
-    const styles = (cards || ["official"]).slice(0, 2);
+    const styles = (cards || ["official"]).slice(0, 3);
     const genMode = mode || "official";
 
     // Admin user check + quota + points
