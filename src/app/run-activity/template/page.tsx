@@ -51,7 +51,19 @@ function TemplateDetail() {
   });
 
   const handleGeneratePackage = async () => {
-    if (!form.name?.trim()) { setGenerateError("请先填写活动名称"); return; }
+    const requiredActivityFields: [string, string][] = [
+      ["name", "活动名称"],
+      ["time", "活动时间"],
+      ["location", "活动地点"],
+      ["background", "活动背景与目的"],
+    ];
+    for (const [key, label] of requiredActivityFields) {
+      if (!String(form[key] || "").trim()) {
+        setGenerateError(`请先填写${label}`);
+        setStep("info");
+        return;
+      }
+    }
     if (selected.length === 0) { setGenerateError("请至少选择一份材料"); return; }
     setIsGenerating(true); setGenerateError(""); setStep("generating");
     const session = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("banhui_session") || "null") : null;
