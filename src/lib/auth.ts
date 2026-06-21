@@ -27,7 +27,7 @@ export async function register(nickname: string, email: string, password: string
 export async function login(email: string, password: string): Promise<{ ok: boolean; msg: string; session?: Session }> {
   try {
     const r = await fetch("/api/auth/login", {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
       body: JSON.stringify({ email, password }),
     });
     const d = await r.json();
@@ -47,6 +47,8 @@ export async function login(email: string, password: string): Promise<{ ok: bool
 
 export function logout(): void {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem("banhui_admin");
+  fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
 }
 
 export function getSession(): Session | null {
