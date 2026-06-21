@@ -9,11 +9,10 @@ export default function AdminModels() {
 
   useEffect(() => { adminFetch("/api/admin/models").then(r => r.json()).then(d => d.ok && setModels(d.models)).catch(() => {}); }, []);
 
-    const updateModel = async (provider: string, updates: any) => {
+  const updateModel = async (provider: string, updates: any) => {
     const r = await adminFetch("/api/admin/models", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider, ...updates }) });
     const d = await r.json();
     setMsg(d.msg || "更新成功"); setTimeout(() => setMsg(""), 3000);
-    // Refresh
     adminFetch("/api/admin/models").then(r=>r.json()).then(d=>d.ok&&setModels(d.models)).catch(()=>{});
   };
 
@@ -37,23 +36,20 @@ export default function AdminModels() {
                 <h2 className="font-semibold capitalize">{m.provider}</h2>
                 <p className="text-xs text-[#64748b]">模型：{m.model_name} | 模式映射：{m.mode_mapping?.join(", ")}</p>
               </div>
-              <button onClick={() => toggleActive(m.provider, !m.is_active)} className={"px-3 py-1.5 rounded-lg text-xs font-medium " + (m.is_active ? "bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0]" : "bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]")}>
-                {m.is_active ? "已启用" : "已禁用"}
-              </button>
+              <button onClick={() => toggleActive(m.provider, !m.is_active)} className={"px-3 py-1.5 rounded-lg text-xs font-medium " + (m.is_active ? "bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0]" : "bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]")}>{m.is_active ? "已启用" : "已禁用"}</button>
             </div>
             <div className="space-y-3">
               <div className="flex gap-3 items-end">
                 <div className="flex-1">
                   <label className="block text-xs font-medium text-[#475569] mb-1">{m.provider === "tongyi" ? "通义千问" : m.provider === "deepseek" ? "DeepSeek" : m.provider === "kimi" ? "Kimi" : m.provider === "doubao" ? "豆包" : m.provider === "glm" ? "GLM" : "文心一言"} API Key</label>
-                  <input className="form-input text-xs font-mono" type="password" defaultValue={m.api_key} placeholder="输入 API Key" id={"key_"+m.provider} />
+                  <input className="form-input text-xs font-mono" type="password" placeholder={m.has_api_key ? `已配置：${m.masked_api_key}，留空不修改` : "输入 API Key"} id={"key_"+m.provider} />
                 </div>
-                <button onClick={() => { const el = document.getElementById("key_"+m.provider) as HTMLInputElement; if (el) updateModel(m.provider, { api_key: el.value }); }} className="btn-primary text-xs py-2 px-4 shrink-0">保存 Key</button>
+                <button onClick={() => { const el = document.getElementById("key_"+m.provider) as HTMLInputElement; if (el && el.value.trim()) updateModel(m.provider, { api_key: el.value.trim() }); else setMsg("未输入新 Key，已保留原配置"); }} className="btn-primary text-xs py-2 px-4 shrink-0">保存 Key</button>
               </div>
               <div>
                 <label className="block text-xs font-medium text-[#475569] mb-1">Agent 写作风格 (systemPrompt)</label>
                 <textarea className="form-input text-xs min-h-[60px] resize-y" defaultValue={m.system_prompt || ""} id={"prompt_"+m.provider} placeholder="输入系统提示词，定义AI的写作风格和角色定位" />
                 <button onClick={() => { const el = document.getElementById("prompt_"+m.provider) as HTMLTextAreaElement; if (el) updateModel(m.provider, { system_prompt: el.value }); }} className="btn-primary text-xs py-1.5 px-3 mt-1">保存 Prompt</button>
-                  
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
@@ -63,7 +59,7 @@ export default function AdminModels() {
                 <button onClick={() => { const el = document.getElementById("temp_"+m.provider) as HTMLInputElement; if (el) updateModel(m.provider, { temperature: parseFloat(el.value) }); }} className="btn-primary text-xs py-2 px-3 shrink-0 mt-5">保存温度</button>
               </div>
             </div>
-            <p className="text-[0.55rem] text-[#94a3b8] mt-2">API 配置保存在 /data/db.json 文件中</p>
+            <p className="text-[0.55rem] text-[#94a3b8] mt-2">API Key 仅以脱敏形式展示，留空保存不会覆盖原 Key。</p>
           </div>
         ))}
       </div>
@@ -82,4 +78,3 @@ export default function AdminModels() {
     </div>
   );
 }
-
