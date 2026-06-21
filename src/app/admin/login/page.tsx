@@ -6,20 +6,34 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setErr("");
-    if (!email || !password) { setErr("请填写账号和密码"); return; }
+    e.preventDefault(); setErr(""); setLoading(true);
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) { setErr("请填写账号和密码"); setLoading(false); return; }
     try {
-      const r = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
-      const d = await r.json();
-      if (d.ok && d.user.membership_level === "admin") {
+      const r = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: cleanEmail, password }),
+      });
+      let d: any = null;
+      try { d = await r.json(); } catch {}
+      if (r.ok && d?.ok && d.user?.membership_level === "admin") {
         localStorage.setItem("banhui_admin", "1");
         localStorage.setItem("banhui_session", JSON.stringify({ userId: d.user.id, nickname: d.user.nickname, email: d.user.email, token: "admin-"+Date.now(), membership_level: "admin", points_balance: 99999 }));
         router.push("/admin");
-      } else setErr("管理员账号或密码错误");
-    } catch { setErr("登录失败"); }
+      } else {
+        setErr(d?.msg || `登录失败（HTTP ${r.status}）`);
+      }
+    } catch {
+      setErr("登录接口请求失败，请检查 Railway 是否已重新部署，以及环境变量是否配置完整");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,16 +45,16 @@ export default function AdminLogin() {
           <p className="text-sm text-[#94a3b8] mt-1">办会助理 · 管理员登录</p>
         </div>
         <form onSubmit={handleSubmit} className="bg-[#1e293b] rounded-xl p-6 space-y-4 border border-[#334155]">
-          {err && <div className="p-3 bg-[#7f1d1d]/50 border border-[#991b1b] rounded-lg text-xs text-[#fca5a5]">{err}</div>}
+          {err && <div className="p-3 bg-[#7f1d1d]/50 border border-[#991b1b] rounded-lg text-xs text-[#fca5a5] whitespace-pre-wrap">{err}</div>}
           <div>
             <label className="block text-xs font-medium text-[#94a3b8] mb-1.5">管理员账号</label>
             <input className="w-full bg-[#0f172a] border border-[#334155] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-[#1a56db]" type="email" placeholder="admin@banhui.com" value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-medium text-[#94a3b8] mb-1.5">密码</label>
-            <input className="w-full bg-[#0f172a] border border-[#334155] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-[#1a56db]" type="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" value={password} onChange={e => setPassword(e.target.value)} />
+            <input className="w-full bg-[#0f172a] border border-[#334155] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-[#1a56db]" type="password" placeholder="••••••" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
-          <button type="submit" className="w-full py-2.5 bg-[#1a56db] hover:bg-[#1e40af] text-white text-sm font-medium rounded-lg transition-colors">登录管理后台</button>
+          <button type="submit" disabled={loading} className="w-full py-2.5 bg-[#1a56db] hover:bg-[#1e40af] disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">{loading ? "登录中..." : "登录管理后台"}</button>
           <a href="/" className="block text-center text-xs text-[#475569] hover:text-[#94a3b8]">&larr; 返回前台</a>
         </form>
       </div>
