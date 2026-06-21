@@ -324,6 +324,8 @@ export const commonFormFields: Record<string, { name: string; label: string; typ
   org_characteristics: { name: "org_characteristics", label: "单位特色用语", type: "textarea", placeholder: "本单位常用的表述方式、特色用语等（选填，如XX街道习惯称居民为街坊）" },
 };
 export const cardStyleOptions: { label: string; value: CardStyle; description: string }[] = [
+  { label: "正式稳妥版", value: "official", description: "结构完整，适合正式报送" },
+  { label: "简洁实用版", value: "concise", description: "重点突出，便于快速使用" },
   { label: "宣传传播版", value: "promotion", description: "有传播感，适合公开发布" },
   { label: "亮点提炼版", value: "highlight", description: "聚焦特色亮点和成果" },
   { label: "创意策划版", value: "creative", description: "角度新颖，有创意性" },
