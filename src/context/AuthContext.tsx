@@ -1,4 +1,3 @@
-
 "use client";
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { login as authLogin, register as authRegister, logout as authLogout, getSession, type Session } from "@/lib/auth";
@@ -19,14 +18,39 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
 });
 
+function toSession(u: any): Session {
+  return {
+    userId: u.id,
+    nickname: u.nickname,
+    email: u.email,
+    token: "server-session",
+    membership_level: u.membership_level,
+    points_balance: u.points_balance,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const s = getSession();
-    if (s) setUser(s);
-    setReady(true);
+    const local = getSession();
+    if (local) setUser(local);
+    fetch("/api/auth/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.ok && d.user) {
+          const s = toSession(d.user);
+          localStorage.setItem("banhui_session", JSON.stringify(s));
+          setUser(s);
+        } else {
+          localStorage.removeItem("banhui_session");
+          localStorage.removeItem("banhui_admin");
+          setUser(null);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setReady(true));
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -55,4 +79,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
-
