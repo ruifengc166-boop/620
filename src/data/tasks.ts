@@ -47,6 +47,7 @@ export interface TaskDefinition {
   description: string;
   icon: string;
   commonFields: string[];
+  requiredFields?: string[];
   specificFields: FormField[];
   outputDescription: string;
 }
@@ -68,6 +69,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成完整的活动方案，包括背景、目的、主题、流程、分工等",
     icon: "📋",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "activity_purpose", "activity_process", "leadership_guests", "key_content"],
+      requiredFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "activity_purpose", "activity_process"],
     specificFields: [
       { name: "activity_goal", label: "活动目标", type: "textarea", placeholder: "请描述本次活动的主要目标", hint: "如：提升居民反诈意识" },
       { name: "activity_scale", label: "活动规模", type: "text", placeholder: "如：200人", required: true },
@@ -85,6 +87,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成活动主持词，含开场白、串词、结束语",
     icon: "🎤",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "activity_process", "leadership_guests"],
+      requiredFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "activity_process", "leadership_guests"],
     specificFields: [
       { name: "host_identity", label: "主持人身份", type: "text", placeholder: "如：街道党工委副书记", required: true },
       { name: "meeting_process", label: "会议流程", type: "textarea", placeholder: "请描述会议的各个环节" },
@@ -100,6 +103,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "发言材料结构整理助手 —— 生成领导发言初稿",
     icon: "🎯",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_background", "activity_purpose", "key_content"],
+      requiredFields: ["activity_name", "host_unit", "activity_background", "activity_purpose", "key_content"],
     specificFields: [
       { name: "speaker_identity", label: "发言领导身份", type: "text", placeholder: "如：街道党工委书记", required: true },
       { name: "work_achievements", label: "工作成果", type: "textarea", placeholder: "需要提及的工作成果" },
@@ -115,6 +119,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成正式新闻稿，包括标题、导语、正文、结尾",
     icon: "📰",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "activity_process", "key_content"],
+      requiredFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "activity_process", "key_content"],
     specificFields: [
       { name: "news_angle", label: "新闻角度", type: "select", options: [{ label: "活动成果", value: "achievement" }, { label: "领导重视", value: "leadership" }, { label: "群众获得感", value: "public" }, { label: "创新做法", value: "innovation" }] },
       { name: "activity_highlights", label: "活动亮点", type: "textarea", placeholder: "活动的特色亮点" },
@@ -130,6 +135,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成公众号推文，含标题、摘要、正文、转发语",
     icon: "💬",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "key_content"],
+      requiredFields: ["activity_name", "host_unit", "activity_background", "key_content"],
     specificFields: [
       { name: "audience", label: "读者对象", type: "select", options: [{ label: "居民群众", value: "residents" }, { label: "企业代表", value: "enterprise" }, { label: "系统内部", value: "internal" }, { label: "社会公众", value: "public" }] },
       { name: "communication_style", label: "传播风格", type: "select", options: [{ label: "正式温馨", value: "formal_warm" }, { label: "活泼亲切", value: "lively" }, { label: "简洁明了", value: "concise" }, { label: "有感染力", value: "engaging" }] },
@@ -144,6 +150,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成正式通知版和微信群简版",
     icon: "📢",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background"],
+      requiredFields: ["activity_name", "host_unit", "activity_time", "activity_location", "participants"],
     specificFields: [
       { name: "notice_recipients", label: "通知对象", type: "text", placeholder: "如：各社区居民", required: true },
       { name: "attendance_requirements", label: "参会要求", type: "textarea", placeholder: "着装要求、携带材料等" },
@@ -159,6 +166,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成正式邀请函和短信/微信邀请文案",
     icon: "✉️",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "activity_background", "activity_purpose"],
+      requiredFields: ["activity_name", "activity_time", "activity_location"],
     specificFields: [
       { name: "invitee", label: "邀请对象", type: "text", placeholder: "如：辖区重点企业负责人", required: true },
       { name: "invitee_identity", label: "邀请身份", type: "text", placeholder: "如：XX公司总经理" },
@@ -173,6 +181,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成结构化流程表格",
     icon: "📊",
     commonFields: ["activity_name", "activity_type", "activity_time", "activity_location", "activity_process"],
+      requiredFields: ["activity_name", "activity_time", "activity_process"],
     specificFields: [
       { name: "start_time", label: "活动开始时间", type: "text", placeholder: "如：09:00", required: true },
       { name: "end_time", label: "活动结束时间", type: "text", placeholder: "如：12:00", required: true },
@@ -188,6 +197,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成活动任务分工表格",
     icon: "👥",
     commonFields: ["activity_name", "activity_type", "activity_background"],
+      requiredFields: ["activity_name", "activity_background"],
     specificFields: [
       { name: "work_groups", label: "工作组类型(每行一个)", type: "textarea", placeholder: "会务组\n宣传组\n后勤组", required: true },
       { name: "staff_count", label: "人员数量", type: "text", placeholder: "如：每组3-5人" },
@@ -202,6 +212,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成标题、口播稿、分镜建议",
     icon: "🎬",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_background", "activity_purpose", "key_content"],
+      requiredFields: ["activity_name", "host_unit", "activity_background", "key_content"],
     specificFields: [
       { name: "platform", label: "平台", type: "select", options: [{ label: "视频号", value: "video_account" }, { label: "抖音", value: "douyin" }, { label: "小红书", value: "xiaohongshu" }, { label: "内部宣传", value: "internal" }], required: true },
       { name: "duration", label: "时长", type: "select", options: [{ label: "30秒", value: "30s" }, { label: "60秒", value: "60s" }, { label: "90秒", value: "90s" }], required: true },
@@ -216,6 +227,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成工作总结版、简报版、台账版",
     icon: "📝",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "activity_purpose", "activity_process", "key_content"],
+      requiredFields: ["activity_name", "host_unit", "activity_background", "activity_purpose", "activity_process", "key_content"],
     specificFields: [
       { name: "actual_process", label: "活动实际过程", type: "textarea", placeholder: "实际开展情况" },
       { name: "attendance_count", label: "参与人数", type: "number", placeholder: "实际参与人数" },
@@ -231,6 +243,7 @@ export const taskDefinitions: TaskDefinition[] = [
     description: "生成简报标题、正文、亮点提炼",
     icon: "📄",
     commonFields: ["activity_name", "activity_type", "host_unit", "activity_time", "activity_location", "participants", "activity_background", "activity_purpose", "key_content"],
+      requiredFields: ["activity_name", "host_unit", "activity_background", "activity_purpose", "key_content"],
     specificFields: [
       { name: "briefing_audience", label: "简报对象", type: "text", placeholder: "如：上级部门、街道领导班子", required: true },
       { name: "work_background", label: "工作背景", type: "textarea", placeholder: "工作开展的背景" },
