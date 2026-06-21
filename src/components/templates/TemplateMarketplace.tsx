@@ -39,6 +39,25 @@ function normalizeFallback(t: any): TemplateCard {
   };
 }
 
+function buildSamplePreview(t: TemplateCard, coreMaterials: string[]) {
+  if (typeof t.sample_preview === "string" && t.sample_preview.trim()) return t.sample_preview.trim();
+  const first = coreMaterials[0] || "活动方案";
+  const second = coreMaterials[1] || "主持词";
+  const third = coreMaterials[2] || "新闻稿";
+  return `【${t.name || "活动"}材料包样例预览】
+
+1. ${first}
+围绕活动背景、目标、时间地点、参与对象、流程安排和职责分工生成完整初稿。
+
+2. ${second}
+生成可直接朗读的开场白、环节串词、嘉宾介绍和结束语。
+
+3. ${third}
+生成标题、导语、活动过程、亮点成效和后续影响等新闻表达。
+
+实际生成时会根据你填写的活动名称、时间、地点、主办单位和背景目的自动替换内容。`;
+}
+
 export default function TemplateMarketplace() {
   const [templates, setTemplates] = useState<TemplateCard[]>(fallbackTemplates.map(normalizeFallback));
   const [activeCategory, setActiveCategory] = useState("all");
@@ -80,6 +99,7 @@ export default function TemplateMarketplace() {
           const scenarioTags = t.scenario_tags?.length ? t.scenario_tags : [t.category, t.name].filter(Boolean);
           const sellingPoints = t.selling_points?.length ? t.selling_points : [`包含${materials.length}份材料`, "覆盖会前、会中、会后", "适合快速生成初稿"];
           const isPreviewOpen = previewId === t.id;
+          const samplePreview = buildSamplePreview(t, coreMaterials);
 
           return (
             <div key={t.id} className="card p-5 hover:border-[#3b82f6] hover:shadow-md transition-all">
@@ -107,7 +127,7 @@ export default function TemplateMarketplace() {
                 <ul className="mt-2 space-y-1">{sellingPoints.slice(0, 3).map(p => <li key={p} className="text-[0.65rem] text-[#64748b]">✓ {p}</li>)}</ul>
               </div>
 
-              {isPreviewOpen && <div className="mb-4 rounded-xl bg-[#fffbeb] border border-[#fde68a] p-3 text-xs text-[#92400e] leading-relaxed whitespace-pre-wrap">{t.sample_preview || `样例包含${coreMaterials.slice(0, 4).join("、")}等材料片段。`}</div>}
+              {isPreviewOpen && <div className="mb-4 rounded-xl bg-[#fffbeb] border border-[#fde68a] p-3 text-xs text-[#92400e] leading-relaxed whitespace-pre-wrap">{samplePreview}</div>}
 
               <div className="flex gap-2">
                 <button onClick={() => setPreviewId(isPreviewOpen ? null : t.id)} className="btn-secondary text-xs flex-1 justify-center">{isPreviewOpen ? "收起样例" : "查看样例"}</button>
