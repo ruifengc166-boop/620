@@ -69,7 +69,12 @@ export default function TaskFormInner() {
   };
 
   const handleGenerate = async () => {
+    setGenerateError("");
+    if (!validateRequiredFields()) return;
+    if (isGenerating) return;
     if (usage && (usage?.remaining ?? 0) <= 0) { setShowQuotaModal(true); return; }
+    setIsGenerating(true);
+    setStep("generating");
     try {
       const session = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("banhui_session") || "null") : null;
       const res = await fetch("/api/generate", {
@@ -77,17 +82,15 @@ export default function TaskFormInner() {
         body: JSON.stringify({ mode: selectedMode, task_type: task.name, cards: selectedStyles, input: formData, user_id: session?.userId || null }),
       });
       const data = await res.json();
-      if (data.ok && data.results) { setResults(data.results); setStep("result"); return; }
-    } catch (e) { /* fallback to demo below */ }
-    const gen: GenerationResult[] = [
-      { id: "v1", title: task.name + "（正式稳妥版）", style: "official", styleLabel: "正式稳妥版", content: demoAntiFraud[0].content.replace("XX社区反诈宣传活动方案", (formData.activity_name || "") + task.name), summary: "完整结构，表达规范，适合正式场合", riskLevel: "low" },
-      { id: "v2", title: task.name + "（简洁实用版）", style: "concise", styleLabel: "简洁实用版", content: "## " + task.name + "（简洁版）\n\n一、时间：" + (formData.activity_time || "待定") + "\n二、地点：" + (formData.activity_location || "待定") + "\n三、参与对象：" + (formData.participants || "待定") + "\n\n【待补充】", summary: "重点突出", riskLevel: "low" },
-      { id: "v3", title: task.name + "（宣传传播版）", style: "promotion", styleLabel: "宣传传播版", content: "## " + task.name + "\n\n" + (formData.activity_background || "为贯彻工作部署") + "，" + (formData.activity_purpose || "特制定方案。") + "\n\n", summary: "有传播感", riskLevel: "medium" },
-      { id: "v4", title: task.name + "（亮点提炼版）", style: "highlight", styleLabel: "亮点提炼版", content: "## " + task.name + "\n\n" + (formData.key_content || "突出主题"), summary: "聚焦亮点", riskLevel: "low" },
-      { id: "v5", title: task.name + "（创意策划版）", style: "creative", styleLabel: "创意策划版", content: "## " + task.name + "\n\n" + (formData.activity_name || "创新方式"), summary: "角度新颖", riskLevel: "medium" },
-    ];
-    setResults(gen);
-    setStep("result");
+      if (data.ok && data.results?.length) { setResults(data.results); setStep("result"); return; }
+      setStep("fill");
+      setGenerateError(data.msg || "生成失败，请稍后重试");
+    } catch (e) {
+      setStep("fill");
+      setGenerateError("网络错误，生成失败，请稍后重试");
+    } finally {
+      setIsGenerating(false);
+    }
   };
   const handleSave = (id: string) => { 
     const r = results.find(x => x.id === id);
@@ -135,7 +138,7 @@ export default function TaskFormInner() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               {commonFields.map((f: any) => (
                 <div key={f.name} className={f.type === "textarea" ? "sm:col-span-2" : ""}>
-                  <label className="block text-xs font-medium text-[#475569] mb-1.5">{f.label}</label>
+                  <label className="block text-xs font-medium text-[#475569] mb-1.5">{f.label}{((task as any).requiredFields || []).includes(f.name) && <span className="text-[#dc2626] ml-0.5">*</span>}</label>
                   {f.type === "textarea" ? <textarea className="form-input min-h-[70px] resize-y" placeholder={f.placeholder} value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)} />
                     : f.type === "select" ? <select className="form-select" value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)}><option value="">请选择</option>{(f.options || activityTypeOptions).map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
                       : <input className="form-input" placeholder={f.placeholder} value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)} />
