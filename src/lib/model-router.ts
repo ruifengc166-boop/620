@@ -26,7 +26,7 @@ const modeProviderMap: Record<GenerationMode, string> = {
 
 function buildPrompt(mode: GenerationMode, taskType: string, input: Record<string, any>): string {
   // Filter out localized fields from general section (added below with Chinese labels)
-  const localKeys = ["org_name", "org_region_type", "org_characteristics"];
+  const localKeys = ["org_name", "org_region_type", "org_characteristics", "output_style"];
   const generalFields = Object.entries(input).filter(([k, v]) => v && !localKeys.includes(k)).map(([k, v]) => `${k}：${v}`).join("\n");
 
   let base = `请根据以下信息生成${taskType}。\n\n任务：${taskType}\n\n用户输入信息：\n${generalFields}\n\n`;
