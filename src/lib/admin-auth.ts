@@ -1,15 +1,12 @@
 import { NextRequest } from "next/server";
-
-const ADMIN_EMAIL = "admin@banhui.com";
+import { getSessionFromRequest } from "./server-auth";
 
 export function isAdminRequest(req: NextRequest): boolean {
-  const auth = req.headers.get("x-admin-auth") || req.nextUrl.searchParams.get("auth");
-  return auth === ADMIN_EMAIL;
+  const session = getSessionFromRequest(req);
+  return session?.role === "admin";
 }
 
 export function getAuthEmail(req: NextRequest): string | null {
-  const auth = req.headers.get("x-admin-auth") || req.nextUrl.searchParams.get("auth");
-  if (auth === ADMIN_EMAIL) return ADMIN_EMAIL;
-  return null;
+  const session = getSessionFromRequest(req);
+  return session?.role === "admin" ? session.email : null;
 }
-
