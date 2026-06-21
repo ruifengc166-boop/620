@@ -53,7 +53,7 @@ function TemplateDetail() {
   const handleGeneratePackage = async () => {
     if (!form.name?.trim()) { setGenerateError("请先填写活动名称"); return; }
     if (selected.length === 0) { setGenerateError("请至少选择一份材料"); return; }
-    setIsGenerating(true); setGenerateError(""); setStep("result");
+    setIsGenerating(true); setGenerateError(""); setStep("generating");
     const session = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("banhui_session") || "null") : null;
     const next: Record<string, string> = {};
     for (const mat of selected) {
@@ -73,13 +73,15 @@ function TemplateDetail() {
     }
     setGeneratedMaterials(next);
     setIsGenerating(false);
+    setStep("result");
   };
 
 
   const steps = [
     { key: "info", label: "活动信息", num: 1 },
     { key: "materials", label: "选择材料", num: 2 },
-    { key: "result", label: "生成结果", num: 3 },
+    { key: "generating", label: "生成中", num: 3 },
+    { key: "result", label: "生成结果", num: 4 },
   ];
 
   return (
@@ -90,7 +92,7 @@ function TemplateDetail() {
           <div key={s.key} className="flex items-center gap-2">
             <div className={"w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold " + (step===s.key?"bg-[#1a56db] text-white":"bg-[#e2e8f0] text-[#94a3b8]")}>{s.num}</div>
             <span className={"text-xs " + (step===s.key?"text-[#1a56db] font-medium":"text-[#94a3b8]")}>{s.label}</span>
-            {i<2 && <span className="text-[#d1d5db] mx-1">&rarr;</span>}
+            {i<3 && <span className="text-[#d1d5db] mx-1">&rarr;</span>}
           </div>
         ))}
       </div>
@@ -142,6 +144,16 @@ function TemplateDetail() {
         </div>
       )}
 
+      {step === "generating" && (
+        <div className="max-w-md mx-auto card p-8 text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-[#dbeafe] border-t-[#1a56db] animate-spin" />
+          <h2 className="text-lg font-semibold mb-2">正在生成活动材料包</h2>
+          <p className="text-sm text-[#64748b]">
+            正在生成 {selected.length} 份材料，请不要关闭页面。
+          </p>
+        </div>
+      )}
+
       {step === "result" && (
         <div className="max-w-4xl mx-auto">
           {savedMsg && <div className="mb-4 p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-sm text-[#166534] text-center">{savedMsg}</div>}
@@ -157,8 +169,16 @@ function TemplateDetail() {
                   </div>
                 </div>
                 <div className="text-xs text-[#64748b] leading-relaxed">
-                  <p className="mb-2">【{mat}】基于 {tmpl.name} 活动信息生成</p>
-                  <p className="italic text-[#94a3b8]">（此处为材料框架内容。点击"深度编辑"可进入对应任务页精确填写信息后重新生成。）</p>
+                  {isGenerating ? (
+                    <div className="flex items-center gap-2 text-[#64748b]">
+                      <span className="w-4 h-4 rounded-full border-2 border-[#dbeafe] border-t-[#1a56db] animate-spin" />
+                      <span>正在生成《{mat}》...</span>
+                    </div>
+                  ) : generatedMaterials[mat] ? (
+                    <div className="whitespace-pre-wrap">{generatedMaterials[mat]}</div>
+                  ) : (
+                    <span className="text-[#dc2626]">未生成内容，请返回重新生成。</span>
+                  )}
                 </div>
                 <div className="mt-3 pt-3 border-t border-[#e2e8f0] flex gap-2">
                   <button className="btn-sm text-xs btn-secondary" onClick={()=>{if(window.confirm("请确认该材料不包含涉密、未公开、个人隐私、商业秘密或未经授权内容。")) { setSavedMsg("已保存到「我的材料」"); setTimeout(()=>setSavedMsg(""), 3000); };}}>💾 保存</button>
