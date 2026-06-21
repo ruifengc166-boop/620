@@ -143,6 +143,7 @@ export default function TaskFormInner() {
                     : f.type === "select" ? <select className="form-select" value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)}><option value="">请选择</option>{(f.options || activityTypeOptions).map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
                       : <input className="form-input" placeholder={f.placeholder} value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)} />
                   }
+                  {errors[f.name] && <p className="text-[0.65rem] text-[#dc2626] mt-1">{errors[f.name]}</p>}
                 </div>
               ))}
             </div>
@@ -158,6 +159,7 @@ export default function TaskFormInner() {
                           : <input className="form-input" type={f.type === "number" ? "number" : "text"} placeholder={f.placeholder} value={formData[f.name] || ""} onChange={(e) => setField(f.name, e.target.value)} />
                       }
                       {f.hint && <p className="text-[0.6rem] text-[#94a3b8] mt-1">{f.hint}</p>}
+                      {errors[f.name] && <p className="text-[0.65rem] text-[#dc2626] mt-1">{errors[f.name]}</p>}
                     </div>
                   ))}
                 </div>
