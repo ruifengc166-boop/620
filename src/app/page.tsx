@@ -13,23 +13,27 @@ const quickTasks = [
 ];
 
 export default function HomePage() {
-    return (
+  return (
     <div>
-      {/* Hero Section */}
       <section className="bg-gradient-to-br from-[#1a56db] via-[#2563eb] to-[#1e40af] text-white">
         <div className="container-app py-12 md:py-16">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-xs text-[#dbeafe] mb-4">免费内测中 · 暂不提供在线交易和支付服务</div>
             <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">办会助理</h1>
-            <p className="text-base md:text-xl text-[#bfdbfe] max-w-2xl mx-auto">一站式活动材料 AI 助手</p>
-            <p className="text-sm text-[#93c5fd] mt-2">写方案、主持词、新闻稿、总结，不再从零开始</p>
+            <p className="text-base md:text-xl text-[#bfdbfe] max-w-2xl mx-auto">给活动组织者用的 AI 材料助手</p>
+            <p className="text-sm text-[#93c5fd] mt-2">一次填写活动信息，生成方案、通知、主持词、新闻稿、推文和总结初稿</p>
           </div>
 
-          {/* Two Main Entries */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+            <Link href="/run-activity" className="bg-white text-[#1d4ed8] rounded-xl px-6 py-3 text-sm font-semibold shadow-lg hover:bg-[#eff6ff] transition-colors">免费试用生成材料</Link>
+            <Link href="/contact" className="bg-white/10 border border-white/30 rounded-xl px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors">申请机构内测</Link>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             <Link href="/quick-write" className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 text-center hover:bg-white/20 transition-all hover:scale-[1.02]">
               <div className="text-4xl mb-2">✍️</div>
               <h2 className="font-semibold text-lg">我要快速写一个材料</h2>
-              <p className="text-sm text-[#bfdbfe] mt-1">12种高频材料，快速生成多版本</p>
+              <p className="text-sm text-[#bfdbfe] mt-1">高频材料，快速生成初稿</p>
             </Link>
             <Link href="/run-activity" className="group bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 text-center hover:bg-white/20 transition-all hover:scale-[1.02]">
               <div className="text-4xl mb-2">🎉</div>
@@ -38,15 +42,14 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Platform features */}
-          <div className="bg-gradient-to-br from-[#1a56db] to-[#1e40af] rounded-2xl p-8 md:p-12 mb-8 shadow-lg">
+          <div className="bg-gradient-to-br from-[#1a56db] to-[#1e40af] rounded-2xl p-8 md:p-12 mt-8 mb-8 shadow-lg">
             <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-8">为什么选择办会助理</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { title: "快速出稿", desc: "3分钟完成一篇材料初稿，告别加班赶材料" },
-                { title: "多版本比选", desc: "一次输入生成多个版本，选最合适的用" },
-                { title: "安全风控", desc: "内置风险检查，涉密/夸大/隐私内容自动识别" },
-                { title: "材料包一键出", desc: "选活动模板，整套材料包一次生成" },
+                { title: "免费体验", desc: "当前为内测体验版，适合先验证真实办会场景" },
+                { title: "快速出稿", desc: "先生成活动材料初稿，再由人工审核修改" },
+                { title: "材料包一键出", desc: "选活动模板，方案、通知、主持词、新闻稿一起准备" },
+                { title: "适合机构试用", desc: "协会、园区、培训、社群和活动团队可申请内测支持" },
               ].map(f => (
                 <div key={f.title} className="bg-white rounded-xl p-8 text-center shadow-md hover:shadow-xl transition-shadow">
                   <h3 className="font-bold text-xl mb-3 text-[#1e293b]">{f.title}</h3>
@@ -55,27 +58,22 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-          {/* Slogan */}
           <div className="mt-8 text-center">
-            <p className="inline-block bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 text-sm text-[#bfdbfe]">
-              🛡️ 默认不保存原始资料 · 即用即走 · 安全生成
-            </p>
+            <p className="inline-block bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 text-sm text-[#bfdbfe]">🛡️ 内测体验工具 · 生成内容仅供参考 · 正式使用前请人工审核</p>
           </div>
         </div>
       </section>
 
-      {/* Security Banner */}
       <div className="container-app my-4">
         <div className="security-banner flex items-start gap-2">
           <span className="text-lg shrink-0">🔒</span>
           <div>
-            <p className="font-medium text-sm">安全提示</p>
-            <p className="text-xs mt-0.5">默认不保存原始资料。请勿上传涉密、内部批示、未公开会议纪要、个人隐私、商业秘密及未经授权的第三方内容。</p>
+            <p className="font-medium text-sm">安全与合规提示</p>
+            <p className="text-xs mt-0.5">当前为免费内测体验版，暂不提供在线交易和支付服务。请勿上传涉密、内部批示、未公开会议纪要、个人隐私、商业秘密及未经授权的第三方内容。</p>
           </div>
         </div>
       </div>
 
-      {/* High Frequency Tasks */}
       <section className="container-app py-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg md:text-xl font-bold text-[#1e293b]">📝 常用材料</h2>
@@ -92,7 +90,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Role Workspace Entry */}
       <section className="bg-white border-t border-[#e2e8f0] py-8">
         <div className="container-app">
           <div className="flex items-center justify-between mb-5">
@@ -116,17 +113,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Quick Links */}
       <section className="container-app py-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link href="/templates" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all">
-            <span className="text-3xl">📐</span>
-            <div><div className="font-semibold text-sm">活动材料包库</div><div className="text-xs text-[#64748b]">先看模板包，再进入生成</div></div>
-          </Link>
-          <Link href="/sample-demo" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all">
-            <span className="text-3xl">🎬</span>
-            <div><div className="font-semibold text-sm">样例演示</div><div className="text-xs text-[#64748b]">查看生成效果</div></div>
-          </Link>
+          <Link href="/templates" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all"><span className="text-3xl">📐</span><div><div className="font-semibold text-sm">活动材料包库</div><div className="text-xs text-[#64748b]">先看模板包，再进入生成</div></div></Link>
+          <Link href="/sample-demo" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all"><span className="text-3xl">🎬</span><div><div className="font-semibold text-sm">样例演示</div><div className="text-xs text-[#64748b]">查看生成效果</div></div></Link>
+          <Link href="/contact" className="card p-5 flex items-center gap-3 hover:border-[#059669] transition-all"><span className="text-3xl">🤝</span><div><div className="font-semibold text-sm">机构试用</div><div className="text-xs text-[#64748b]">申请内测支持</div></div></Link>
         </div>
       </section>
     </div>
