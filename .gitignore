@@ -42,13 +42,12 @@ next-env.d.ts
 
 # data
 /data/db.json
-
+/data/prompt-engine.private.json
 
 # temp files
 .server_error.txt
 .server_output.txt
 build_output.txt
-
 
 # build logs
 build_check.txt
