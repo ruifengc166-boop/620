@@ -6,8 +6,8 @@ const navItems = [
   { href: "/", label: "首页", icon: "🏠" },
   { href: "/quick-write", label: "写材料", icon: "✍" },
   { href: "/run-activity", label: "办活动", icon: "🎉" },
-  { href: "/templates", label: "模板", icon: "\ud83d\udcd0" },
-  { href: "/my-materials", label: "我的", icon: "📂" },
+  { href: "/templates", label: "材料包", icon: "📐" },
+  { href: "/contact", label: "试用", icon: "🤝" },
 ];
 
 export default function MobileNav() {
@@ -28,5 +28,3 @@ export default function MobileNav() {
     </nav>
   );
 }
-
-
