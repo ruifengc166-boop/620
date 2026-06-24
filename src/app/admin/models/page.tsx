@@ -25,7 +25,8 @@ export default function AdminModels() {
 
   return (
     <div>
-      <h1 className="text-xl md:text-2xl font-bold text-[#1e293b] mb-6">🤖 模型配置</h1>
+      <h1 className="text-xl md:text-2xl font-bold text-[#1e293b] mb-2">🤖 模型配置</h1>
+      <p className="text-xs text-[#64748b] mb-6">内置办会助理 Agent 写作系统已包含文种结构、场景判断、风格库和审校规则。这里的 systemPrompt 将作为补充提示追加，不会覆盖内置能力。</p>
       {msg && <div className="mb-4 p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-xs text-[#166534]">{msg}</div>}
 
       <div className="space-y-4">
@@ -47,8 +48,9 @@ export default function AdminModels() {
                 <button onClick={() => { const el = document.getElementById("key_"+m.provider) as HTMLInputElement; if (el && el.value.trim()) updateModel(m.provider, { api_key: el.value.trim() }); else setMsg("未输入新 Key，已保留原配置"); }} className="btn-primary text-xs py-2 px-4 shrink-0">保存 Key</button>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#475569] mb-1">Agent 写作风格 (systemPrompt)</label>
-                <textarea className="form-input text-xs min-h-[60px] resize-y" defaultValue={m.system_prompt || ""} id={"prompt_"+m.provider} placeholder="输入系统提示词，定义AI的写作风格和角色定位" />
+                <label className="block text-xs font-medium text-[#475569] mb-1">模型补充 Prompt（可选）</label>
+                <textarea className="form-input text-xs min-h-[72px] resize-y" defaultValue={m.system_prompt || ""} id={"prompt_"+m.provider} placeholder="可补充该模型的角色偏好或表达风格，例如：更克制、更像新闻通稿、更强调执行细节。无需粘贴完整内置办会助理 Prompt。" />
+                <p className="text-[0.6rem] text-[#94a3b8] mt-1">内置 Agent Prompt 会自动追加：全局角色、文种结构、场景识别、风格规则、审校清单和风险约束。</p>
                 <button onClick={() => { const el = document.getElementById("prompt_"+m.provider) as HTMLTextAreaElement; if (el) updateModel(m.provider, { system_prompt: el.value }); }} className="btn-primary text-xs py-1.5 px-3 mt-1">保存 Prompt</button>
               </div>
               <div className="flex items-center gap-3">
@@ -71,7 +73,7 @@ export default function AdminModels() {
           <li>• DeepSeek：在 <a href="https://platform.deepseek.com" target="_blank" className="underline">DeepSeek 开放平台</a> 获取 API Key</li>
           <li>• Kimi：在 <a href="https://platform.moonshot.cn" target="_blank" className="underline">月之暗面开放平台</a> 获取 API Key</li>
           <li>• 配置 API Key 后，系统自动使用真实模型生成；未配置时使用模拟数据</li>
-          <li>• 每个模型可映射到多个生成模式（如官方模式→通义千问、策划模式→DeepSeek）</li>
+          <li>• 内置办会助理 Prompt 引擎不依赖后台配置，后台 Prompt 只做模型补充和微调</li>
         </ul>
       </div>
       <Link href="/admin" className="inline-block mt-4 text-xs text-[#1a56db] hover:underline">← 返回概览</Link>
