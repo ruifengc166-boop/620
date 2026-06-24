@@ -10,19 +10,23 @@ export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated && user?.email) {
-      fetch(`/api/account/usage?email=${user.email}`).then(r=>r.json()).then(d=>d.ok&&setUsage(d)).catch(()=>{});
+    if (isAuthenticated) {
+      fetch("/api/account/usage", { credentials: "include" })
+        .then(r=>r.json())
+        .then(d=>d.ok&&setUsage(d))
+        .catch(()=>{});
+    } else {
+      setUsage(null);
     }
-  }, [isAuthenticated, user?.email]);
+  }, [isAuthenticated]);
 
   const navItems = [
     { href: "/", label: "首页" },
     { href: "/quick-write", label: "快速写材料" },
     { href: "/run-activity", label: "办一场活动" },
-
-    { href: "/templates", label: "模板广场" },
+    { href: "/templates", label: "材料包库" },
+    { href: "/contact", label: "机构试用" },
     { href: "/my-materials", label: "我的材料" },
-
   ];
 
   return (
@@ -31,7 +35,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-14 md:h-16">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <span className="text-xl md:text-2xl font-bold text-[#1a56db]">办会助理</span>
-            <span className="hidden sm:inline text-xs text-[#64748b] ml-1">| 材料AI助手</span>
+            <span className="hidden sm:inline text-xs text-[#64748b] ml-1">| 免费内测版</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
@@ -59,6 +63,3 @@ export default function Header() {
     </header>
   );
 }
-
-
-
