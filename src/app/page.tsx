@@ -1,7 +1,5 @@
 "use client";
 import Link from "next/link";
-import MaterialSearch from "@/components/home/MaterialSearch";
-
 const quickTasks = [
   { name: "活动方案", icon: "📋", desc: "完整活动方案设计" },
   { name: "主持词", icon: "🎤", desc: "开场白、串词、结束语" },
@@ -90,9 +88,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* 全网范文搜索模块 */}
-      <MaterialSearch />
 
       <section className="bg-white border-t border-[#e2e8f0] py-8">
         <div className="container-app">
