@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import WechatQrCode from "@/components/WechatQrCode";
 
 export default function AccountPage() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -96,7 +97,7 @@ export default function AccountPage() {
             ) : (
               <div className="mt-4 grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4 items-start">
                 <div className="bg-white border border-[#bfdbfe] rounded-xl p-3 text-center">
-                  {wechatQrUrl ? <img src={wechatQrUrl} alt={`${wechatName}公众号二维码`} className="w-32 h-32 mx-auto rounded-lg object-cover" /> : <div className="w-32 h-32 mx-auto rounded-lg bg-[#f1f5f9] flex items-center justify-center text-xs text-[#94a3b8]">公众号二维码<br/>待配置</div>}
+                  {wechatQrUrl ? <img src={wechatQrUrl} alt={`${wechatName}公众号二维码`} className="w-32 h-32 mx-auto rounded-lg object-cover" /> : <WechatQrCode className="w-32 h-32 mx-auto rounded-lg" />}
                   <div className="text-[0.65rem] text-[#64748b] mt-2">扫码关注「{wechatName}」</div>
                 </div>
                 <div className="space-y-3">
@@ -105,7 +106,7 @@ export default function AccountPage() {
                     <button onClick={createBindCode} className="btn-primary text-sm justify-center py-2">{bind?.code ? "重新生成绑定码" : "生成绑定码"}</button>
                     <button onClick={refreshBind} className="btn-secondary text-sm justify-center py-2">我已回复，刷新状态</button>
                   </div>
-                  {!wechatQrUrl && <p className="text-xs text-[#64748b]">提示：如需显示二维码，请在腾讯云环境变量设置 <code>NEXT_PUBLIC_WECHAT_QR_URL</code>，并重新构建。</p>}
+                  <p className="text-xs text-[#64748b]">公众号名称已设为「{wechatName}」。如二维码后续变更，可用 <code>NEXT_PUBLIC_WECHAT_QR_URL</code> 覆盖默认二维码。</p>
                 </div>
               </div>
             )}
