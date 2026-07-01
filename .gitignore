@@ -43,6 +43,8 @@ next-env.d.ts
 # data
 /data/db.json
 /data/prompt-engine.private.json
+/data/feedback.json
+/data/backups/
 
 # temp files
 .server_error.txt
