@@ -60,6 +60,7 @@ export default function AccountPage() {
   const usableTotalToday = usage ? usedToday + (usage.remaining || 0) : null;
   const points = usage?.points_balance ?? user?.points_balance ?? "--";
   const wechatName = process.env.NEXT_PUBLIC_WECHAT_ACCOUNT_NAME || "办会助理";
+  const wechatQrUrl = process.env.NEXT_PUBLIC_WECHAT_QR_URL || "";
 
   return (
     <div className="container-app py-6 animate-fade-in">
@@ -93,13 +94,19 @@ export default function AccountPage() {
             {bind?.bound ? (
               <div className="mt-4 p-3 rounded-lg bg-white border border-[#bfdbfe] text-sm text-[#166534]">已完成公众号绑定，奖励额度已自动发放。当前可生成次数以账户额度为准。</div>
             ) : (
-              <div className="mt-4 space-y-3">
-                {bind?.code ? <div className="p-4 bg-white border border-[#bfdbfe] rounded-xl text-center"><div className="text-xs text-[#64748b] mb-1">关注公众号「{wechatName}」后回复绑定码</div><div className="text-3xl font-bold tracking-widest text-[#1d4ed8]">{bind.code}</div><div className="text-[0.65rem] text-[#94a3b8] mt-1">有效期：{bind.expires_at ? new Date(bind.expires_at).toLocaleString() : "24小时"}</div></div> : null}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <button onClick={createBindCode} className="btn-primary text-sm justify-center py-2">{bind?.code ? "重新生成绑定码" : "生成绑定码"}</button>
-                  <button onClick={refreshBind} className="btn-secondary text-sm justify-center py-2">我已回复，刷新状态</button>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-[160px_1fr] gap-4 items-start">
+                <div className="bg-white border border-[#bfdbfe] rounded-xl p-3 text-center">
+                  {wechatQrUrl ? <img src={wechatQrUrl} alt={`${wechatName}公众号二维码`} className="w-32 h-32 mx-auto rounded-lg object-cover" /> : <div className="w-32 h-32 mx-auto rounded-lg bg-[#f1f5f9] flex items-center justify-center text-xs text-[#94a3b8]">公众号二维码<br/>待配置</div>}
+                  <div className="text-[0.65rem] text-[#64748b] mt-2">扫码关注「{wechatName}」</div>
                 </div>
-                <p className="text-xs text-[#64748b]">提示：如果公众号名称暂未配置，可先在腾讯云环境变量设置 <code>NEXT_PUBLIC_WECHAT_ACCOUNT_NAME</code>。</p>
+                <div className="space-y-3">
+                  {bind?.code ? <div className="p-4 bg-white border border-[#bfdbfe] rounded-xl text-center md:text-left"><div className="text-xs text-[#64748b] mb-1">关注后回复绑定码</div><div className="text-3xl font-bold tracking-widest text-[#1d4ed8]">{bind.code}</div><div className="text-[0.65rem] text-[#94a3b8] mt-1">有效期：{bind.expires_at ? new Date(bind.expires_at).toLocaleString() : "24小时"}</div></div> : <div className="p-4 bg-white border border-[#bfdbfe] rounded-xl text-sm text-[#475569]">先点击“生成绑定码”，再扫码关注公众号并回复绑定码。</div>}
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button onClick={createBindCode} className="btn-primary text-sm justify-center py-2">{bind?.code ? "重新生成绑定码" : "生成绑定码"}</button>
+                    <button onClick={refreshBind} className="btn-secondary text-sm justify-center py-2">我已回复，刷新状态</button>
+                  </div>
+                  {!wechatQrUrl && <p className="text-xs text-[#64748b]">提示：如需显示二维码，请在腾讯云环境变量设置 <code>NEXT_PUBLIC_WECHAT_QR_URL</code>，并重新构建。</p>}
+                </div>
               </div>
             )}
             {bindMsg && <p className="text-xs text-[#1d4ed8] mt-3">{bindMsg}</p>}
