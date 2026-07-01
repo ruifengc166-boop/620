@@ -33,6 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin", label: "📊 概览" },
     { href: "/admin/content", label: "📝 内容管理" },
     { href: "/admin/users", label: "👥 用户管理" },
+    { href: "/admin/wechat-bindings", label: "📮 公众号绑定" },
     { href: "/admin/templates", label: "📐 模板管理" },
     { href: "/admin/models", label: "🤖 模型配置" },
     { href: "/admin/prompt-engine", label: "🧠 Prompt引擎" },
