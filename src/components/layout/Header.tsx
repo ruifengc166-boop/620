@@ -22,6 +22,7 @@ export default function Header() {
 
   const navItems = [
     { href: "/", label: "首页" },
+    { href: "/beta", label: "免费公测" },
     { href: "/quick-write", label: "快速写材料" },
     { href: "/run-activity", label: "办一场活动" },
     { href: "/templates", label: "材料包库" },
