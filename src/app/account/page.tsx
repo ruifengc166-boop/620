@@ -8,15 +8,39 @@ export default function AccountPage() {
   const { user, logout, isAuthenticated } = useAuth();
   const router = useRouter();
   const [usage, setUsage] = useState<any>(null);
+  const [bind, setBind] = useState<any>(null);
+  const [bindMsg, setBindMsg] = useState("");
+
+  const loadUsage = () => {
+    fetch("/api/account/usage", { credentials: "include" })
+      .then(r => r.json())
+      .then(d => { if (d.ok) setUsage(d); })
+      .catch(() => {});
+  };
+
+  const loadBind = () => {
+    fetch("/api/account/bind-code", { credentials: "include" })
+      .then(r => r.json())
+      .then(d => { if (d.ok) setBind(d); })
+      .catch(() => {});
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetch("/api/account/usage", { credentials: "include" })
-        .then(r => r.json())
-        .then(d => { if (d.ok) setUsage(d); })
-        .catch(() => {});
+      loadUsage();
+      loadBind();
     }
   }, [isAuthenticated]);
+
+  const createBindCode = async () => {
+    setBindMsg("");
+    const r = await fetch("/api/account/bind-code", { method: "POST", credentials: "include" });
+    const d = await r.json();
+    if (d.ok) { setBind(d); setBindMsg("绑定码已生成。关注公众号后回复该绑定码即可自动加额度。"); }
+    else setBindMsg(d.msg || "生成绑定码失败");
+  };
+
+  const refreshBind = () => { loadBind(); loadUsage(); setBindMsg("已刷新绑定状态"); setTimeout(() => setBindMsg(""), 2000); };
 
   if (!isAuthenticated) {
     return (
@@ -32,6 +56,10 @@ export default function AccountPage() {
   }
 
   const planLabel = user?.membership_level === "admin" ? "管理员" : user?.membership_level === "pro" ? "机构内测" : user?.membership_level === "expert" ? "深度内测" : "免费内测";
+  const usedToday = usage?.today ?? 0;
+  const usableTotalToday = usage ? usedToday + (usage.remaining || 0) : null;
+  const points = usage?.points_balance ?? user?.points_balance ?? "--";
+  const wechatName = process.env.NEXT_PUBLIC_WECHAT_ACCOUNT_NAME || "办会助理";
 
   return (
     <div className="container-app py-6 animate-fade-in">
@@ -48,11 +76,35 @@ export default function AccountPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-[#e2e8f0]">
               <div><div className="text-xs text-[#64748b]">内测身份</div><div className={"text-sm font-medium mt-0.5 " + (usage ? "text-[#059669]" : "text-[#94a3b8]")}>{planLabel}</div></div>
-              <div><div className="text-xs text-[#64748b]">剩余点数</div><div className="text-sm font-medium mt-0.5">{user?.points_balance ?? "--"} 点</div></div>
-              <div><div className="text-xs text-[#64748b]">今日已用</div><div className="text-sm font-medium mt-0.5">{usage ? usage.today + "/" + usage.daily_limit : "--"} 次</div></div>
-              <div><div className="text-xs text-[#64748b]">剩余次数</div><div className={"text-sm font-medium mt-0.5 " + (usage && usage.remaining < 5 ? "text-[#dc2626]" : "")}>{usage ? usage.remaining : "--"} 次</div></div>
+              <div><div className="text-xs text-[#64748b]">剩余点数</div><div className="text-sm font-medium mt-0.5">{points} 点</div></div>
+              <div><div className="text-xs text-[#64748b]">今日已用/可用</div><div className="text-sm font-medium mt-0.5">{usage ? usedToday + "/" + usableTotalToday : "--"} 次</div></div>
+              <div><div className="text-xs text-[#64748b]">可生成次数</div><div className={"text-sm font-medium mt-0.5 " + (usage && usage.remaining < 5 ? "text-[#dc2626]" : "")}>{usage ? usage.remaining : "--"} 次</div></div>
             </div>
           </div>
+
+          <div className="card p-6 mb-4 border-[#bfdbfe] bg-[#eff6ff]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-semibold mb-2 text-[#1e3a8a]">📮 公众号绑定加额度</h2>
+                <p className="text-sm text-[#475569] leading-relaxed">关注公众号并回复绑定码，可自动获得额外内测额度。一个网站账号、一个微信 openid 只能领取一次。</p>
+              </div>
+              <span className={"shrink-0 px-2 py-1 rounded-full text-[0.65rem] " + (bind?.bound ? "bg-[#dcfce7] text-[#166534]" : "bg-white text-[#1d4ed8] border border-[#bfdbfe]")}>{bind?.bound ? "已绑定" : "未绑定"}</span>
+            </div>
+            {bind?.bound ? (
+              <div className="mt-4 p-3 rounded-lg bg-white border border-[#bfdbfe] text-sm text-[#166534]">已完成公众号绑定，奖励额度已自动发放。当前可生成次数以账户额度为准。</div>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {bind?.code ? <div className="p-4 bg-white border border-[#bfdbfe] rounded-xl text-center"><div className="text-xs text-[#64748b] mb-1">关注公众号「{wechatName}」后回复绑定码</div><div className="text-3xl font-bold tracking-widest text-[#1d4ed8]">{bind.code}</div><div className="text-[0.65rem] text-[#94a3b8] mt-1">有效期：{bind.expires_at ? new Date(bind.expires_at).toLocaleString() : "24小时"}</div></div> : null}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button onClick={createBindCode} className="btn-primary text-sm justify-center py-2">{bind?.code ? "重新生成绑定码" : "生成绑定码"}</button>
+                  <button onClick={refreshBind} className="btn-secondary text-sm justify-center py-2">我已回复，刷新状态</button>
+                </div>
+                <p className="text-xs text-[#64748b]">提示：如果公众号名称暂未配置，可先在腾讯云环境变量设置 <code>NEXT_PUBLIC_WECHAT_ACCOUNT_NAME</code>。</p>
+              </div>
+            )}
+            {bindMsg && <p className="text-xs text-[#1d4ed8] mt-3">{bindMsg}</p>}
+          </div>
+
           <div className="card p-6 mb-4">
             <h2 className="font-semibold mb-3">内测说明</h2>
             <div className="text-sm text-[#475569] leading-relaxed space-y-2">
@@ -64,7 +116,7 @@ export default function AccountPage() {
           <div className="card p-6"><h2 className="font-semibold mb-4">使用记录</h2><div className="text-center py-6 text-[#94a3b8] text-sm"><p>暂无使用记录</p><p className="text-xs mt-1">开始生成材料后，这里会显示历史记录</p></div></div>
         </div>
         <div>
-          <div className="card p-6 mb-4 border-[#bbf7d0] bg-[#f0fdf4]"><h3 className="font-semibold text-sm text-[#166534]">🧪 免费内测版 {(!user || user.membership_level === "free") ? "(当前)" : ""}</h3><p className="text-2xl font-bold text-[#166534] my-2">体验开放</p><ul className="text-xs space-y-1.5 text-[#166534]"><li>✓ 每日{usage ? usage.daily_limit : 10}次生成体验</li><li>✓ 基础活动材料</li><li>✓ 常用材料包模板</li><li>✓ 复制文本</li><li>✓ 人工审核提示</li></ul></div>
+          <div className="card p-6 mb-4 border-[#bbf7d0] bg-[#f0fdf4]"><h3 className="font-semibold text-sm text-[#166534]">🧪 免费内测版 {(!user || user.membership_level === "free") ? "(当前)" : ""}</h3><p className="text-2xl font-bold text-[#166534] my-2">体验开放</p><ul className="text-xs space-y-1.5 text-[#166534]"><li>✓ 当前可生成 {usage ? usage.remaining : 3} 次</li><li>✓ 公众号绑定可加额度</li><li>✓ 基础活动材料</li><li>✓ 常用材料包模板</li><li>✓ 人工审核提示</li></ul></div>
           <div className="card p-6 mb-4 border-[#bfdbfe]"><h3 className="font-semibold text-sm">🌟 机构内测支持</h3><p className="text-lg font-bold my-2">联系申请</p><ul className="text-xs space-y-1.5 text-[#475569]"><li>✓ 适合协会、园区、培训机构、活动团队</li><li>✓ 系列活动材料包</li><li>✓ 分赛场/分享会/培训会场景</li><li>✓ 反馈共创与模板优化</li></ul><Link href="/contact" className="btn-secondary w-full mt-4 text-sm flex justify-center py-2">申请试用</Link></div>
           <div className="card p-6 border-[#ddd6fe]"><h3 className="font-semibold text-sm">🚀 深度共创</h3><p className="text-lg font-bold my-2">内测邀请</p><ul className="text-xs space-y-1.5 text-[#475569]"><li>✓ 批量活动材料验证</li><li>✓ 专属场景模板沉淀</li><li>✓ 活动组织流程共创</li><li>✓ 适合长期活动运营团队</li></ul><Link href="/contact" className="btn-secondary w-full mt-4 text-sm flex justify-center py-2">联系共创</Link></div>
           <button onClick={() => { logout(); router.push("/"); }} className="w-full mt-4 py-2.5 text-sm text-[#dc2626] hover:text-[#991b1b] hover:underline text-center">退出登录</button>
