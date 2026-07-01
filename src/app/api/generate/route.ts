@@ -14,11 +14,20 @@ function inputSize(input: any) {
   try { return JSON.stringify(input || {}).length; } catch { return MAX_INPUT_CHARS + 1; }
 }
 
+function generationPaused() {
+  const db = loadDB();
+  return String(db.site_content?.generation_paused || "false") === "true";
+}
+
 export async function POST(req: NextRequest) {
   if (!isSameOriginRequest(req)) return NextResponse.json({ ok: false, msg: "非法来源请求" }, { status: 403 });
 
   const session = getSessionFromRequest(req);
   if (!session) return NextResponse.json({ ok: false, msg: "请先登录" }, { status: 401 });
+
+  if (session.role !== "admin" && generationPaused()) {
+    return NextResponse.json({ ok: false, msg: "生成服务正在维护中，请稍后再试" }, { status: 503 });
+  }
 
   const limited = checkRequestRateLimit(req, `generate:${session.userId}`, session.role === "admin" ? 120 : 30, 60 * 60 * 1000);
   if (!limited.ok) {
