@@ -1,4 +1,3 @@
-
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -25,7 +24,7 @@ export default function RegisterPage() {
     const res = await register(nickname, email, password);
     if (res.ok) {
       await login(email, password);
-      setMsg("注册成功"); setTimeout(() => router.push("/account"), 500);
+      setMsg("注册成功，正在进入新手引导"); setTimeout(() => router.push("/onboarding"), 500);
     } else setErr(res.msg);
   };
 
@@ -49,7 +48,7 @@ export default function RegisterPage() {
           </div>
           <div>
             <label className="block text-xs font-medium text-[#475569] mb-1.5">密码</label>
-            <input className="form-input" type="password" placeholder="至少4位" value={password} onChange={e => setPassword(e.target.value)} />
+            <input className="form-input" type="password" placeholder="至少8位" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-medium text-[#475569] mb-1.5">确认密码</label>
@@ -64,4 +63,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
