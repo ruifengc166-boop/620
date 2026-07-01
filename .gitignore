@@ -44,6 +44,7 @@ next-env.d.ts
 /data/db.json
 /data/prompt-engine.private.json
 /data/feedback.json
+/data/wechat-bindings.json
 /data/backups/
 
 # temp files
