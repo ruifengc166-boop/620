@@ -85,7 +85,9 @@ export default function TaskFormInner() {
       });
       const data = await res.json();
       if (data.ok && data.results?.length) {
-        setResults(data.results);
+        const nextResults = data.results as GenerationResult[];
+        setResults(nextResults);
+        setSelectedCard(nextResults[0]?.id || null);
         fetch("/api/account/usage", { credentials: "include" }).then(r=>r.json()).then(d=>d.ok&&setUsage(d)).catch(()=>{});
         setStep("result"); return;
       }
