@@ -4,18 +4,9 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { activityTemplates as fallbackTemplates, templateCategoryIcons } from "@/data/templates";
 import { exportWord, exportMaterialPackage } from "@/lib/export";
+import FeedbackButtons from "@/components/FeedbackButtons";
 
-type TemplateItem = {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  materialCount?: number;
-  materials?: string[];
-  output_materials?: string[];
-  marketplace_title?: string;
-  marketplace_subtitle?: string;
-};
+type TemplateItem = { id: string; name: string; category: string; description: string; materialCount?: number; materials?: string[]; output_materials?: string[]; marketplace_title?: string; marketplace_subtitle?: string; };
 
 function normalizeFallback(t: any): TemplateItem {
   const materials = t.materials || t.output_materials || [];
@@ -41,19 +32,12 @@ function TemplateDetail() {
   const [generateError, setGenerateError] = useState("");
 
   useEffect(() => {
-    fetch("/api/templates")
-      .then(r => r.json())
-      .then(d => { if (d.ok && Array.isArray(d.templates)) setTemplates(d.templates); })
-      .catch(() => {})
-      .finally(() => setLoadingTemplates(false));
+    fetch("/api/templates").then(r => r.json()).then(d => { if (d.ok && Array.isArray(d.templates)) setTemplates(d.templates); }).catch(() => {}).finally(() => setLoadingTemplates(false));
   }, []);
 
   const tmpl = useMemo(() => templates.find(t => t.id === tid), [templates, tid]);
   const materials = useMemo(() => tmpl ? (tmpl.output_materials || tmpl.materials || []) : [], [tmpl]);
-
-  useEffect(() => {
-    if (tmpl) setSelected(materials.slice(0, Math.min(6, materials.length)));
-  }, [tmpl?.id]);
+  useEffect(() => { if (tmpl) setSelected(materials.slice(0, Math.min(6, materials.length))); }, [tmpl?.id]);
 
   if (loadingTemplates) return <div className="container-app py-12 text-center text-[#64748b]">加载模板中...</div>;
   if (!tmpl) return <div className="container-app py-12 text-center text-[#64748b]">未找到模板<Link href={source === "marketplace" ? "/templates" : "/run-activity"} className="text-[#1a56db] ml-2">返回</Link></div>;
@@ -88,19 +72,16 @@ function TemplateDetail() {
 
   const handleGeneratePackage = async () => {
     const requiredActivityFields: [string, string][] = [["name", "活动名称"], ["time", "活动时间"], ["location", "活动地点"], ["background", "活动背景与目的"]];
-    for (const [key, label] of requiredActivityFields) {
-      if (!String(form[key] || "").trim()) { setGenerateError(`请先填写${label}`); setStep("info"); return; }
-    }
+    for (const [key, label] of requiredActivityFields) { if (!String(form[key] || "").trim()) { setGenerateError(`请先填写${label}`); setStep("info"); return; } }
     if (selected.length === 0) { setGenerateError("请至少选择一份材料"); return; }
     setIsGenerating(true); setGenerateError(""); setStep("generating");
-    const session = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("banhui_session") || "null") : null;
     const next: Record<string, string> = {};
     for (const mat of selected) {
       try {
         const taskType = materialToTaskType[mat] || mat;
         const res = await fetch("/api/generate", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mode: "official", task_type: taskType, cards: ["official"], input: { ...buildInput(), package_material_name: mat, package_generation: "yes" }, user_id: session?.userId || null }),
+          method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+          body: JSON.stringify({ mode: "official", task_type: taskType, cards: ["official"], input: { ...buildInput(), package_material_name: mat, package_generation: "yes" } }),
         });
         const data = await res.json();
         next[mat] = data.ok && data.results?.[0]?.content ? data.results[0].content : "【" + mat + "】生成失败：" + (data.msg || "请稍后重试");
@@ -115,9 +96,7 @@ function TemplateDetail() {
   return (
     <div className="container-app py-6 animate-fade-in">
       <div className="mb-4"><Link href={backHref} className="text-sm text-[#64748b] hover:text-[#1a56db]">&larr; 返回</Link></div>
-      <div className="flex items-center justify-center gap-2 mb-6 text-sm">
-        {steps.map((s,i) => <div key={s.key} className="flex items-center gap-2"><div className={"w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold " + (step===s.key?"bg-[#1a56db] text-white":"bg-[#e2e8f0] text-[#94a3b8]")}>{s.num}</div><span className={"text-xs " + (step===s.key?"text-[#1a56db] font-medium":"text-[#94a3b8]")}>{s.label}</span>{i<3 && <span className="text-[#d1d5db] mx-1">&rarr;</span>}</div>)}
-      </div>
+      <div className="flex items-center justify-center gap-2 mb-6 text-sm">{steps.map((s,i) => <div key={s.key} className="flex items-center gap-2"><div className={"w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold " + (step===s.key?"bg-[#1a56db] text-white":"bg-[#e2e8f0] text-[#94a3b8]")}>{s.num}</div><span className={"text-xs " + (step===s.key?"text-[#1a56db] font-medium":"text-[#94a3b8]")}>{s.label}</span>{i<3 && <span className="text-[#d1d5db] mx-1">&rarr;</span>}</div>)}</div>
 
       {step === "info" && <div className="max-w-3xl mx-auto"><div className="card p-6">
         <div className="flex items-center gap-3 mb-6"><div className="text-3xl">{templateCategoryIcons[tmpl.category]||"📋"}</div><div><h1 className="text-xl font-bold">{tmpl.marketplace_title || tmpl.name}</h1><p className="text-sm text-[#64748b]">{tmpl.marketplace_subtitle || tmpl.description}（{tmpl.materialCount || materials.length}份材料）</p></div></div>
@@ -131,7 +110,7 @@ function TemplateDetail() {
           <div><label className="block text-xs font-medium text-[#475569] mb-1.5">预计人数</label><input className="form-input" placeholder="如：100人" value={form.attendance||""} onChange={e=>setF("attendance",e.target.value)}/></div>
           <div className="sm:col-span-2"><label className="block text-xs font-medium text-[#475569] mb-1.5">活动背景与目的 *</label><textarea className="form-input min-h-[80px] resize-y" placeholder="活动开展背景和主要目的" value={form.background||""} onChange={e=>setF("background",e.target.value)}/></div>
         </div>
-        <div className="p-3 bg-[#fffbeb] border border-[#fde68a] rounded-lg mb-4 text-xs text-[#92400e]">请勿输入涉密、内部、隐私或商业秘密内容。</div>
+        <div className="p-3 bg-[#fffbeb] border border-[#fde68a] rounded-lg mb-4 text-xs text-[#92400e]">请勿输入涉密资料、内部批示、未公开会议纪要、个人隐私、商业秘密或未经授权的第三方内容。</div>
         {generateError && <div className="mb-4 p-3 bg-[#fef2f2] border border-[#fecaca] rounded-lg text-xs text-[#dc2626]">{generateError}</div>}
         <button onClick={()=>setStep("materials")} className="btn-primary w-full justify-center py-3 text-base">下一步：选择材料</button>
       </div></div>}
@@ -140,17 +119,17 @@ function TemplateDetail() {
         <h2 className="font-semibold mb-4">选择需要生成的材料（可多选）</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">{materials.map(m => { const checked = selected.includes(m); return <button key={m} onClick={()=>toggleMat(m)} className={"p-3 rounded-lg border text-sm text-left transition-all flex items-center gap-2 " + (checked?"border-[#059669] bg-[#f0fdf4] text-[#166534]":"border-[#e2e8f0] text-[#475569] hover:border-[#94a3b8]")}><span className={"w-5 h-5 rounded border flex items-center justify-center text-xs " + (checked?"bg-[#059669] text-white border-[#059669]":"border-[#d1d5db]")}>{checked?"✓":""}</span>{m}</button> })}</div>
         <div className="text-xs text-[#64748b] mb-4">已选 {selected.length}/{materials.length} 份材料</div>
-        <div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg mb-4 text-xs text-[#166534]">本工具仅生成材料初稿。政策依据、数据、姓名、职务等信息必须由用户自行核实。</div>
-        <div className="flex gap-3"><button onClick={()=>setStep("info")} className="btn-secondary">上一步</button><button onClick={handleGeneratePackage} className="btn-primary flex-1 justify-center py-3 text-base" disabled={selected.length===0||isGenerating}>{isGenerating ? "正在生成..." : `✨ 生成 ${selected.length} 份材料`}</button></div>
+        <div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg mb-4 text-xs text-[#166534]">本工具仅生成材料初稿。正式发布、报送、归档或对外传播前，请人工核实政策依据、数据、姓名、职务、单位名称和公开授权。</div>
+        <div className="flex gap-3"><button onClick={()=>setStep("info")} className="btn-secondary">上一步</button><button onClick={handleGeneratePackage} className="btn-primary flex-1 justify-center py-3 text-base" disabled={selected.length===0||isGenerating}>{isGenerating ? "正在生成..." : `✨ 生成${selected.length}份材料`}</button></div>
       </div></div>}
 
       {step === "generating" && <div className="max-w-md mx-auto card p-8 text-center"><div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-[#dbeafe] border-t-[#1a56db] animate-spin" /><h2 className="text-lg font-semibold mb-2">正在生成活动材料包</h2><p className="text-sm text-[#64748b]">正在生成 {selected.length} 份材料，请不要关闭页面。</p></div>}
 
       {step === "result" && <div className="max-w-4xl mx-auto">
         {savedMsg && <div className="mb-4 p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-sm text-[#166534] text-center">{savedMsg}</div>}
-        <div className="mb-4 p-3 bg-[#fffbeb] border border-[#fde68a] rounded-lg text-xs text-[#92400e]">以下内容为AI生成初稿，仅供修改参考。发布前请人工审核。</div>
-        <div className="space-y-4">{selected.map((mat,i) => <div key={i} className="card p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-semibold text-sm">{mat}</h3><div className="flex gap-1.5"><button className="btn-sm text-xs btn-secondary" onClick={()=>{navigator.clipboard.writeText(generatedMaterials[mat] || form.name+mat+"初稿"); alert("已复制");}}>复制</button><button className="btn-sm text-xs btn-secondary" onClick={() => exportWord(mat, generatedMaterials[mat] || "【"+mat+"】\n"+(form.background||""))}>📤 Word</button></div></div><div className="text-xs text-[#64748b] leading-relaxed whitespace-pre-wrap max-h-[420px] overflow-y-auto slim-scrollbar">{generatedMaterials[mat] || <span className="text-[#dc2626]">未生成内容，请返回重新生成。</span>}</div></div>)}</div>
-        <div className="mt-6 text-center space-y-2"><div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-xs text-[#166534]"><strong>导出提示：</strong>导出内容仍需人工审核。</div><button className="btn-secondary text-sm" onClick={()=>exportMaterialPackage(form.name+tmpl.name+"材料包", selected.map(m=>({name:m,content:generatedMaterials[m]||("【"+m+"】\n\n基于"+tmpl.name+"生成\n\n"+(form.background||"")+"\n\n【待补充】")})))}>📤 导出整套文档</button><div><Link href={backHref} className="btn-secondary text-sm">返回模板列表</Link></div></div>
+        <div className="mb-4 p-3 bg-[#fffbeb] border border-[#fde68a] rounded-lg text-xs text-[#92400e]">以下内容为 AI 生成初稿，仅供修改参考。正式发布、报送、归档或对外传播前，请人工核实事实、数据、政策依据、领导姓名、职务、单位名称和公开授权。</div>
+        <div className="space-y-4">{selected.map((mat,i) => <div key={i} className="card p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-semibold text-sm">{mat}</h3><div className="flex gap-1.5"><button className="btn-sm text-xs btn-secondary" onClick={()=>{navigator.clipboard.writeText(generatedMaterials[mat] || form.name+mat+"初稿"); alert("已复制");}}>复制</button><button className="btn-sm text-xs btn-secondary" onClick={() => exportWord(mat, generatedMaterials[mat] || "【"+mat+"】\n"+(form.background||""))}>📤 Word</button></div></div><div className="text-xs text-[#64748b] leading-relaxed whitespace-pre-wrap max-h-[420px] overflow-y-auto slim-scrollbar">{generatedMaterials[mat] || <span className="text-[#dc2626]">未生成内容，请返回重新生成。</span>}</div><FeedbackButtons materialType={mat} resultId={`${tmpl.id}-${mat}`} /></div>)}</div>
+        <div className="mt-6 text-center space-y-2"><div className="p-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg text-xs text-[#166534]"><strong>导出提示：</strong>导出内容仍需人工审核。涉及政策、数据、职务、金额、公开授权等信息请核实后使用。</div><button className="btn-secondary text-sm" onClick={()=>exportMaterialPackage(form.name+tmpl.name+"材料包", selected.map(m=>({name:m,content:generatedMaterials[m]||("【"+m+"】\n\n基于"+tmpl.name+"生成\n\n"+(form.background||"")+"\n\n【待补充】")})))}>📤 导出整套文档</button><div><Link href={backHref} className="btn-secondary text-sm">返回模板列表</Link></div></div>
       </div>}
     </div>
   );
