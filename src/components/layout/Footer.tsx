@@ -15,6 +15,7 @@ export default function Footer() {
         <div className="border-t border-[#e2e8f0] pt-4 text-center text-xs text-[#94a3b8] leading-relaxed">
           <p>本平台生成内容仅为 AI 初稿，正式发布、报送和对外传播前请进行人工审核。</p>
           <p className="mt-1">当前为免费内测体验版本，暂不提供在线购买、充值、会员开通或支付服务。</p>
+          <p className="mt-1"><a href="/privacy" className="hover:text-[#64748b]">隐私政策</a><span className="mx-2">·</span><a href="/terms" className="hover:text-[#64748b]">用户协议</a></p>
           {beian ? <p className="mt-1"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" className="hover:text-[#64748b]">{beian}</a></p> : null}
           <p className="mt-1">&copy; 2026 办会助理 版权所有</p>
         </div>
