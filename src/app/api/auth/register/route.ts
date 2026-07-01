@@ -4,6 +4,8 @@ import { checkRequestRateLimit } from "@/lib/rate-limit";
 import { hashPasswordSecure } from "@/lib/password";
 import { isSameOriginRequest } from "@/lib/request-security";
 
+const INITIAL_BETA_POINTS = 3;
+
 function genId(): string { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function isValidEmail(email: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 
@@ -31,7 +33,7 @@ export async function POST(req: NextRequest) {
       password_hash: hashPasswordSecure(password),
       role_type: "user",
       membership_level: "free",
-      points_balance: 10,
+      points_balance: INITIAL_BETA_POINTS,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
