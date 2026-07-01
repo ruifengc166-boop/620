@@ -24,6 +24,7 @@ const DATA_DIR = getDataDir();
 const DB_FILE = path.join(DATA_DIR, "db.json");
 const PROMPT_FILE = path.join(DATA_DIR, "prompt-engine.private.json");
 const FEEDBACK_FILE = path.join(DATA_DIR, "feedback.json");
+const WECHAT_BINDINGS_FILE = path.join(DATA_DIR, "wechat-bindings.json");
 const BACKUP_DIR = path.join(DATA_DIR, "backups");
 
 function safeStat(file: string) {
@@ -58,6 +59,7 @@ function backupNow() {
     snapshotFile(DB_FILE, "db", stamp),
     snapshotFile(PROMPT_FILE, "prompt-engine", stamp),
     snapshotFile(FEEDBACK_FILE, "feedback", stamp),
+    snapshotFile(WECHAT_BINDINGS_FILE, "wechat-bindings", stamp),
   ].filter(Boolean);
   return files;
 }
@@ -72,6 +74,7 @@ export async function GET(req: NextRequest) {
       db: safeStat(DB_FILE),
       prompt: safeStat(PROMPT_FILE),
       feedback: safeStat(FEEDBACK_FILE),
+      wechat_bindings: safeStat(WECHAT_BINDINGS_FILE),
     },
     backups: listBackups(),
   });
