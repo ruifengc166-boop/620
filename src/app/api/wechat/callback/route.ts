@@ -129,6 +129,14 @@ function resolveKeywordReply(text: string) {
   return publicTestReply();
 }
 
+function resolveClickMenuReply(eventKey: string) {
+  const key = String(eventKey || "").trim().toUpperCase();
+  if (["FREE_BETA", "PUBLIC_TEST", "BETA", "MENU_BETA"].includes(key)) return publicTestReply();
+  if (["MATERIAL_TEMPLATES", "TEMPLATES", "MENU_TEMPLATES"].includes(key)) return templateReply();
+  if (["BIND_QUOTA", "QUOTA", "BIND", "MENU_QUOTA"].includes(key)) return quotaReply();
+  return publicTestReply();
+}
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   if (!verifyWechatSignature(url.searchParams)) return new NextResponse("forbidden", { status: 403 });
@@ -144,12 +152,17 @@ export async function POST(req: NextRequest) {
   const fromUser = parseXmlValue(xml, "FromUserName");
   const msgType = parseXmlValue(xml, "MsgType");
   const event = parseXmlValue(xml, "Event");
+  const eventKey = parseXmlValue(xml, "EventKey");
   const content = parseXmlValue(xml, "Content");
 
   if (!fromUser || !toUser) return new NextResponse("success", { status: 200 });
 
   if (msgType === "event" && event.toLowerCase() === "subscribe") {
     return new NextResponse(textReply(fromUser, toUser, "欢迎关注「办会助理」。\n\n如果你经常要写活动方案、主持词、新闻稿、公众号推文、活动总结，可以回复「办会」进入免费公测。\n\n注册后进入“我的账户”生成绑定码，再回公众号回复绑定码，即可自动获得更多生成额度。"), { headers: { "Content-Type": "application/xml; charset=utf-8" } });
+  }
+
+  if (msgType === "event" && event.toLowerCase() === "click") {
+    return new NextResponse(textReply(fromUser, toUser, resolveClickMenuReply(eventKey)), { headers: { "Content-Type": "application/xml; charset=utf-8" } });
   }
 
   if (msgType === "text") {
